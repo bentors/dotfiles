@@ -1,0 +1,134 @@
+@import "art.css";
+
+* {
+    font-family: "Ubuntu Sans Mono", "FontAwesome";
+    font-size: 14px;
+    min-height: 0;
+}
+
+window#waybar {
+    background: transparent;
+    color: #ffffff;
+}
+
+/* cada módulo é uma "pílula" separada */
+#custom-menu, #workspaces, #island, #tray, #cpu, #memory, #network, #bluetooth,
+#custom-browser, #custom-spotify, #custom-terminal, #custom-settings, #battery, #custom-quick {
+    background: #3b2470;
+    border-radius: 999px;
+    padding: 0 10px;
+    margin: 0 3px;
+}
+
+/* menu e áreas de trabalho formam uma pílula só */
+#custom-menu {
+    margin-right: 0;
+    border-radius: 999px 0 0 999px;
+    padding-right: 4px;
+}
+
+#workspaces {
+    margin-left: 0;
+    border-radius: 0 999px 999px 0;
+    padding: 0 6px 0 0;
+}
+
+#workspaces button {
+    color: alpha(#ffffff, 0.35);
+    font-size: 11px;
+    padding: 0 4px;
+    border: none;
+    background: none;
+    box-shadow: none;
+}
+
+#workspaces button.visible { color: #ffffff; }
+#workspaces button.active { color: #ffffff; }
+#workspaces button.urgent { color: #f7768e; }
+
+
+#custom-browser { color: #ffffff; }
+#custom-spotify { color: #ffffff; }
+#custom-terminal, #custom-settings { color: #ffffff; }
+
+#battery { color: #ffffff; }
+#battery.warning { color: #e0af68; }
+#battery.critical { color: #f7768e; }
+
+
+#custom-quick { color: #ffffff; }
+
+/* cada item da bandeja na sua propria pilula */
+#tray { background: transparent; padding: 0; margin: 0; }
+#tray > * {
+    background: #3b2470;
+    border-radius: 999px;
+    margin: 0 3px;
+}
+/* o contêiner do item ignora tamanho; quem aceita e o icone dentro dele */
+#tray > * image { min-width: 34px; }
+
+#network { color: #ffffff; }
+#network.disconnected { color: alpha(#ffffff, 0.45); }
+#bluetooth { color: #ffffff; }
+#bluetooth.off, #bluetooth.disabled { color: alpha(#ffffff, 0.45); }
+#tray.empty { background: transparent; padding: 0; margin: 0; }
+
+#cpu, #memory { color: #ffffff; }
+/* cpu e memoria formam uma pilula so, como menu + areas de trabalho */
+#cpu {
+    margin-right: 0;
+    border-radius: 999px 0 0 999px;
+    padding-right: 6px;
+}
+#memory {
+    margin-left: 0;
+    border-radius: 0 999px 999px 0;
+    padding-left: 6px;
+}
+
+/* ---- dynamic island (adaptada da config do Matheus) ---- */
+#island { padding: 0 6px 0 4px; }
+#island:hover { background: #4a2f87; }
+
+#custom-island {
+    padding: 0 12px;
+    min-width: 90px;
+}
+#custom-island.paused { color: alpha(#ffffff, 0.45); }
+
+/* equalizador: 5 barras; a altura vem da classe h0..h7 do eq-driver.sh */
+#custom-eq1, #custom-eq2, #custom-eq3, #custom-eq4, #custom-eq5 {
+    background-color: #ffffff;
+    border-radius: 999px;
+    min-width: 4px;
+    min-height: 0;
+    padding: 0;
+    font-size: 0px;
+    margin: 0 1.5px;
+    transition-property: min-height, margin-top, margin-bottom;
+    transition-duration: 110ms;
+}
+#custom-eq1 { margin-left: 6px; }
+#custom-eq1.h0, #custom-eq2.h0, #custom-eq3.h0, #custom-eq4.h0, #custom-eq5.h0 { min-height: 4px; margin-top: 11px; margin-bottom: 11px; }
+#custom-eq1.h1, #custom-eq2.h1, #custom-eq3.h1, #custom-eq4.h1, #custom-eq5.h1 { min-height: 6px; margin-top: 10px; margin-bottom: 10px; }
+#custom-eq1.h2, #custom-eq2.h2, #custom-eq3.h2, #custom-eq4.h2, #custom-eq5.h2 { min-height: 8px; margin-top: 9px; margin-bottom: 9px; }
+#custom-eq1.h3, #custom-eq2.h3, #custom-eq3.h3, #custom-eq4.h3, #custom-eq5.h3 { min-height: 10px; margin-top: 8px; margin-bottom: 8px; }
+#custom-eq1.h4, #custom-eq2.h4, #custom-eq3.h4, #custom-eq4.h4, #custom-eq5.h4 { min-height: 12px; margin-top: 7px; margin-bottom: 7px; }
+#custom-eq1.h5, #custom-eq2.h5, #custom-eq3.h5, #custom-eq4.h5, #custom-eq5.h5 { min-height: 14px; margin-top: 6px; margin-bottom: 6px; }
+#custom-eq1.h6, #custom-eq2.h6, #custom-eq3.h6, #custom-eq4.h6, #custom-eq5.h6 { min-height: 16px; margin-top: 5px; margin-bottom: 5px; }
+#custom-eq1.h7, #custom-eq2.h7, #custom-eq3.h7, #custom-eq4.h7, #custom-eq5.h7 { min-height: 18px; margin-top: 4px; margin-bottom: 4px; }
+
+/* capa circular com anel de progresso (gerada pelo island.sh) */
+#custom-art {
+    min-width: 28px;
+    min-height: 28px;
+    margin: 1px 2px 1px 2px;
+    padding: 0;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition-property: min-width, margin, opacity;
+    transition-duration: 350ms;
+}
+#custom-art.off { min-width: 0; margin: 0; opacity: 0; background-image: none; }

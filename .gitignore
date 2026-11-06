@@ -1,0 +1,7 @@
+*.bak*
+__pycache__/
+# wallpapers stay out of the repo
+*.png
+*.jpg
+*.jpeg
+*.webp

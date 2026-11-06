@@ -1,0 +1,149 @@
+{
+    "layer": "top",
+    "reload_style_on_change": true,
+    "position": "top",
+    "height": 34,
+    "margin-top": 6,
+    "margin-left": 8,
+    "margin-right": 8,
+    "modules-left": ["custom/menu", "hyprland/workspaces", "cpu", "memory"],
+    "modules-center": ["group/island"],
+    "modules-right": ["tray", "bluetooth", "network", "custom/browser", "custom/spotify", "custom/terminal", "custom/settings", "battery", "custom/quick"],
+    "custom/menu": {
+        "format": "",
+        "tooltip": false,
+        "on-click": "wofi --show drun"
+    },
+    "hyprland/workspaces": {
+        "format": "",
+        "all-outputs": true,
+        "persistent-workspaces": { "1": [], "2": [], "3": [], "4": [], "5": [], "6": [], "7": [], "8": [], "9": [], "10": [] }
+    },
+    // "dynamic island": relógio; com o Spotify tocando ganha equalizador e capa
+    "group/island": {
+        "orientation": "horizontal",
+        "modules": ["custom/eq1", "custom/eq2", "custom/eq3", "custom/eq4", "custom/eq5", "custom/island", "custom/art"]
+    },
+    "custom/eq1": {
+        "exec": "tail -n0 -F ${XDG_RUNTIME_DIR}/waybar-eq/1 2>/dev/null",
+        "return-type": "json",
+        "escape": false,
+        "on-click": "~/.config/waybar/scripts/player-panel-toggle.sh abrir"
+    },
+    "custom/eq2": {
+        "exec": "tail -n0 -F ${XDG_RUNTIME_DIR}/waybar-eq/2 2>/dev/null",
+        "return-type": "json",
+        "escape": false,
+        "on-click": "~/.config/waybar/scripts/player-panel-toggle.sh abrir"
+    },
+    "custom/eq3": {
+        "exec": "tail -n0 -F ${XDG_RUNTIME_DIR}/waybar-eq/3 2>/dev/null",
+        "return-type": "json",
+        "escape": false,
+        "on-click": "~/.config/waybar/scripts/player-panel-toggle.sh abrir"
+    },
+    "custom/eq4": {
+        "exec": "tail -n0 -F ${XDG_RUNTIME_DIR}/waybar-eq/4 2>/dev/null",
+        "return-type": "json",
+        "escape": false,
+        "on-click": "~/.config/waybar/scripts/player-panel-toggle.sh abrir"
+    },
+    "custom/eq5": {
+        "exec": "tail -n0 -F ${XDG_RUNTIME_DIR}/waybar-eq/5 2>/dev/null",
+        "return-type": "json",
+        "escape": false,
+        "on-click": "~/.config/waybar/scripts/player-panel-toggle.sh abrir"
+    },
+    "custom/island": {
+        "exec": "~/.config/waybar/scripts/island.sh",
+        "return-type": "json",
+        "interval": 1,
+        "on-click": "~/.config/waybar/scripts/player-panel-toggle.sh abrir",
+        "on-click-right": "hyprctl dispatch focuswindow class:Spotify",
+        "on-scroll-up": "playerctl --player=spotify next",
+        "on-scroll-down": "playerctl --player=spotify previous"
+    },
+    "custom/art": {
+        "exec": "~/.config/waybar/scripts/art.sh",
+        "return-type": "json",
+        "interval": 1,
+        "on-click": "hyprctl dispatch focuswindow class:Spotify"
+    },
+    // icone so, no mesmo padrao da rede; o do blueman na bandeja foi desligado
+    // (gsettings org.blueman.general plugin-list ['!StatusNotifierItem'])
+    "bluetooth": {
+        "format": "",
+        "format-disabled": "",
+        "format-off": "",
+        "format-connected": "",
+        "tooltip-format": "Bluetooth: {status}",
+        "tooltip-format-connected": "{device_enumerate}",
+        "tooltip-format-enumerate-connected": "{device_alias}",
+        "on-click": "blueman-manager"
+    },
+    // rede em uso (rota padrao): cabeada ou wifi
+    "network": {
+        "format-ethernet": "",
+        "format-wifi": "",
+        "format-linked": "",
+        "format-disconnected": "",
+        "tooltip-format-ethernet": "Cabeada ({ifname})\n{ipaddr}",
+        "tooltip-format-wifi": "Wi-Fi: {essid} ({signalStrength}%)\n{ipaddr}",
+        "tooltip-format-disconnected": "Sem rede",
+        "on-click": "nm-connection-editor"
+    },
+    "cpu": {
+        "format": " {usage}%",
+        "interval": 5
+    },
+    "memory": {
+        "format": " {percentage}%",
+        "tooltip-format": "{used:0.1f} de {total:0.1f} GiB",
+        "interval": 5
+    },
+    "tray": {
+        "icon-size": 16,
+        "spacing": 8
+    },
+    "custom/browser": {
+        "format": "",
+        "tooltip": false,
+        "on-click": "~/.local/opt/zen/zen"
+    },
+    "custom/spotify": {
+        "format": "",
+        "tooltip": false,
+        "on-click": "spotify"
+    },
+    "custom/terminal": {
+        "format": "",
+        "tooltip": false,
+        "on-click": "kitty"
+    },
+    "custom/settings": {
+        "format": "",
+        "tooltip": false,
+        "on-click": "env XDG_CURRENT_DESKTOP=GNOME gnome-control-center"
+    },
+    // abre o painel de configurações rápidas e notificações (SwayNC)
+    "custom/quick": {
+        "exec": "swaync-client -swb",
+        "return-type": "json",
+        "format": "{icon}",
+        "format-icons": {
+            "notification": " ",
+            "none": "",
+            "dnd-notification": " ",
+            "dnd-none": ""
+        },
+        "tooltip": false,
+        "on-click": "swaync-client -t -sw",
+        "on-click-right": "swaync-client -d -sw"
+    },
+    "battery": {
+        "states": { "warning": 25, "critical": 10 },
+        "format": "{icon} {capacity}%",
+        "format-charging": " {capacity}%",
+        "format-icons": ["", "", "", "", ""]
+    }
+}
