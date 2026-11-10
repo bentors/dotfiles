@@ -27,9 +27,17 @@ Copy the folders into `~/.config/` (or symlink them). Wallpapers are not
 included; `scripts/wallpaper /path/to/image.png` sets one.
 
 Main dependencies: `hyprland`, `waybar`, `swaybg`, `hyprlock`, `hypridle`,
-`kitty`, `fastfetch`, `vicinae`, `playerctl`, `wireplumber` (`wpctl`),
-`imagemagick`, `cava`, `wl-clipboard`, `python3-gi` with GTK 4 and libadwaita,
-`wofi`, `swaync`, `rofi`, `fish`, and FontAwesome 4.
+`hyprpolkitagent`, `kitty`, `fastfetch`, `vicinae`, `wofi`, `swaync`, `rofi`,
+`fish`, `playerctl`, `wireplumber` (`wpctl`), `cava`, ImageMagick 7 (`magick`),
+`curl`, `wl-clipboard`, `cliphist`, `grim`, `slurp`, `libnotify-bin`,
+`brightnessctl`, `blueman`, `network-manager-gnome`, `pavucontrol`, `nwg-bar`,
+`nautilus`, `jq`, `python3-gi` with GTK 4 and libadwaita, FontAwesome 4,
+Ubuntu Sans and URW Gothic (`fonts-urw-base35`).
+
+The bar and `Super+B` expect Zen Browser at `~/.local/opt/zen/zen`; the island
+follows Spotify. Monitor layout and the `intel_backlight` device are specific to
+this machine; adjust them in `hyprland.conf`, `scripts/backlight` and
+`swaync/config.json`.
 
 ## Claude Code
 
