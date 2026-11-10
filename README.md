@@ -36,3 +36,10 @@ Copy `.claude/*` into `~/.claude/`. `settings.json` holds only portable keys
 (theme, status line, attribution off, plugins and marketplaces); merge it into
 an existing file instead of overwriting it. The status line needs `jq`.
 Credentials, history, memory and machine-specific hooks are never committed.
+
+Not versioned, reinstalled by their own tools:
+
+- Caveman skills (`caveman`, `ultracave`, `megacave`), hooks and MCP:
+  `npm i -g @caveman-ai/cli && caveman setup --agent-native claude`
+- claude.ai connectors (Gmail, Slack, Notion...) come back with the login;
+  the GitHub MCP comes with the `github` plugin.
