@@ -1,6 +1,6 @@
 {
     "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
-    // Padrão do fastfetch sem: host, display, battery, locale, localip, icons, font, cursor, terminal, terminalfont
+    // Altura das infos = 20 linhas, igual ao logo do Ubuntu (display compacto numa linha só)
     // roxo no lugar do vermelho/laranja padrao do logo do Ubuntu
     "logo": {
         "color": { "1": "38;2;139;92;246", "2": "38;2;187;154;247" }
@@ -10,8 +10,9 @@
     },
     "modules": [
         "title", "separator",
-        "os", "kernel", "uptime", "packages", "shell",
-        "de", "wm", "wmtheme", "theme",
-        "cpu", "gpu", "memory", "swap", "disk"
+        "os", "kernel", "uptime", "packages", "processes", "shell", "terminal",
+        "wm",
+        "cpu", "gpu", { "type": "display", "compactType": "original" }, "memory", "swap", "disk", "battery",
+        "wifi", "localip", "datetime"
     ]
 }
