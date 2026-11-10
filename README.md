@@ -18,6 +18,7 @@ Hyprland desktop on Ubuntu with a purple Waybar and a media "dynamic island".
 | `.config/swaync/` | Notification center with Wi-Fi, Bluetooth, volume and media controls |
 | `.config/rofi/wallpaper.rasi` | Thumbnail grid used by `scripts/wallpaper` |
 | `.config/fish/` | Shell prompt, clock on the right, fastfetch greeting |
+| `.gitconfig` | Git identity, GitHub auth through `gh` |
 | `.claude/` | Claude Code: global `CLAUDE.md`, status line, plugins and the `git-workflow` skill |
 
 ## Install
