@@ -5,3 +5,15 @@ __pycache__/
 *.jpg
 *.jpeg
 *.webp
+
+# never publish Claude Code state, credentials or memory
+.claude/*
+!.claude/CLAUDE.md
+!.claude/settings.json
+!.claude/statusline.sh
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/git-workflow/
+# machine-local fish state and GitHub CLI tokens
+.config/fish/fish_variables
+.config/gh/

@@ -14,6 +14,12 @@ Hyprland desktop on Ubuntu with a purple Waybar and a media "dynamic island".
 | `.config/kitty/` | Translucent black terminal |
 | `.config/fastfetch/` | Purple fetch on terminal start |
 | `.config/vicinae/` | Launcher settings (`Super+Space`) |
+| `.config/wofi/` | App menu style (`$menu` and the bar's launcher button) |
+| `.config/swaync/` | Notification center with Wi-Fi, Bluetooth, volume and media controls |
+| `.config/rofi/wallpaper.rasi` | Thumbnail grid used by `scripts/wallpaper` |
+| `.config/fish/` | Shell prompt, clock on the right, fastfetch greeting |
+| `.gitconfig` | Git identity, GitHub auth through `gh` |
+| `.claude/` | Claude Code: global `CLAUDE.md`, status line, plugins and the `git-workflow` skill |
 
 ## Install
 
@@ -23,4 +29,18 @@ included; `scripts/wallpaper /path/to/image.png` sets one.
 Main dependencies: `hyprland`, `waybar`, `swaybg`, `hyprlock`, `hypridle`,
 `kitty`, `fastfetch`, `vicinae`, `playerctl`, `wireplumber` (`wpctl`),
 `imagemagick`, `cava`, `wl-clipboard`, `python3-gi` with GTK 4 and libadwaita,
-and FontAwesome 4.
+`wofi`, `swaync`, `rofi`, `fish`, and FontAwesome 4.
+
+## Claude Code
+
+Copy `.claude/*` into `~/.claude/`. `settings.json` holds only portable keys
+(theme, status line, attribution off, plugins and marketplaces); merge it into
+an existing file instead of overwriting it. The status line needs `jq`.
+Credentials, history, memory and machine-specific hooks are never committed.
+
+Not versioned, reinstalled by their own tools:
+
+- Caveman skills (`caveman`, `ultracave`, `megacave`), hooks and MCP:
+  `npm i -g @caveman-ai/cli && caveman setup --agent-native claude`
+- claude.ai connectors (Gmail, Slack, Notion...) come back with the login;
+  the GitHub MCP comes with the `github` plugin.

@@ -1,0 +1,73 @@
+{
+  "$schema": "/etc/xdg/swaync/configSchema.json",
+  "positionX": "right",
+  "positionY": "top",
+  "control-center-margin-top": 8,
+  "control-center-margin-right": 8,
+  "control-center-margin-bottom": 8,
+  "control-center-width": 400,
+  "notification-window-width": 400,
+  "timeout": 6,
+  "widgets": [
+    "buttons-grid",
+    "volume",
+    "backlight",
+    "mpris",
+    "title",
+    "dnd",
+    "notifications"
+  ],
+  "widget-config": {
+    "buttons-grid": {
+      "actions": [
+        {
+          "label": "  Wi-Fi",
+          "command": "[ \"$SWAYNC_TOGGLE_STATE\" = true ] && nmcli radio wifi on || nmcli radio wifi off",
+          "update-command": "nmcli radio wifi | grep -q enabled && echo true || echo false",
+          "type": "toggle"
+        },
+        {
+          "label": "  Bluetooth",
+          "command": "[ \"$SWAYNC_TOGGLE_STATE\" = true ] && bluetoothctl power on || bluetoothctl power off",
+          "update-command": "bluetoothctl show | grep -q Powered:.yes && echo true || echo false",
+          "type": "toggle"
+        },
+        {
+          "label": "Redes ›",
+          "command": "hyprctl dispatch exec '[float; size 800 600; center] kitty -e nmtui'"
+        },
+        {
+          "label": "Dispositivos ›",
+          "command": "blueman-manager"
+        },
+        {
+          "label": "Som ›",
+          "command": "pavucontrol"
+        }
+      ]
+    },
+    "volume": {
+      "label": "",
+      "show-per-app": true,
+      "show-per-app-label": true,
+      "expand-button-label": "▾",
+      "collapse-button-label": "▴",
+      "empty-list-label": "Nenhum app tocando som"
+    },
+    "backlight": {
+      "label": "☼",
+      "device": "intel_backlight"
+    },
+    "mpris": {
+      "image-size": 64
+    },
+    "title": {
+      "text": "Notificações",
+      "clear-all-button": true,
+      "button-text": "Limpar"
+    },
+    "dnd": {
+      "text": "Não perturbe"
+    }
+  }
+}

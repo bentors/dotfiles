@@ -1,0 +1,47 @@
+/* Tokyo Night, no mesmo estilo de pílulas da barra */
+* { font-family: "Ubuntu Sans", "FontAwesome"; }
+
+.control-center {
+    background: #1a1b26;
+    border: 2px solid #7aa2f7;
+    border-radius: 12px;
+    color: #c0caf5;
+}
+
+.notification-row .notification-background .notification,
+.widget-mpris-player {
+    background: #292e42;
+    border-radius: 10px;
+    color: #c0caf5;
+}
+
+.widget-buttons-grid { padding: 8px; }
+
+.widget-buttons-grid flowboxchild > button {
+    background: #292e42;
+    color: #c0caf5;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.widget-buttons-grid flowboxchild > button.toggle:checked,
+.widget-buttons-grid flowboxchild > button.active,
+.widget-buttons-grid button:checked {
+    background: #7aa2f7;
+    color: #1a1b26;
+}
+
+.widget-volume, .widget-backlight {
+    background: #292e42;
+    border-radius: 10px;
+    margin: 4px 8px;
+    padding: 4px 10px;
+}
+
+trough highlight { background: #7aa2f7; }
+
+.widget-title > button, .widget-dnd > switch:checked {
+    background: #7aa2f7;
+    color: #1a1b26;
+    border-radius: 8px;
+}
