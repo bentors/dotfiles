@@ -4,7 +4,9 @@
 ^/README.*
 ^/\.stowrc
 ^/\.stow-local-ignore
+^/packages\.txt
 
-# rewritten at runtime by tools/scripts; kept here as reference copies only
+# rewritten at runtime by tools/scripts (replacing links); copied, not linked
 ^/\.claude/settings\.json
 ^/\.config/waybar/art\.css
+^/\.config/mimeapps\.list

@@ -18,7 +18,9 @@ Hyprland desktop on Ubuntu with a purple Waybar and a media "dynamic island".
 | `.config/swaync/` | Notification center with Wi-Fi, Bluetooth, volume and media controls |
 | `.config/rofi/wallpaper.rasi` | Thumbnail grid used by `scripts/wallpaper` |
 | `.config/fish/` | Shell prompt, clock on the right, fastfetch greeting |
+| `.config/mimeapps.list` | Zen Browser as the default for web links and HTML |
 | `.gitconfig` | Git identity, GitHub auth through `gh` |
+| `packages.txt` | apt packages the configs depend on |
 | `.claude/` | Claude Code: global `CLAUDE.md`, status line, plugins and the `git-workflow` skill |
 
 ## Install
@@ -27,27 +29,30 @@ Files are symlinked into `$HOME` with [GNU Stow](https://www.gnu.org/software/st
 so editing a config in place edits the repo:
 
 ```sh
-sudo apt install stow
 git clone https://github.com/bentors/dotfiles ~/dotfiles
-cd ~/dotfiles && stow .
-cp .config/waybar/art.css ~/.config/waybar/   # runtime file, not linked
+cd ~/dotfiles
+grep -vE '^\s*(#|$)' packages.txt | xargs sudo apt install -y
+stow .
+# runtime-rewritten files are copied, not linked
+cp .config/waybar/art.css ~/.config/waybar/
+cp .config/mimeapps.list ~/.config/
+# purple accent for GTK/libadwaita apps (dconf, not a file)
+gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+gsettings set org.gnome.desktop.interface gtk-theme 'Yaru-purple-dark'
+gsettings set org.gnome.desktop.interface accent-color 'purple'
 ```
 
 `.stowrc` links files one by one (`--no-folding`), so app state written next to
-them stays out of the repo. `.stow-local-ignore` skips `.claude/settings.json`
-and `waybar/art.css`, which tools rewrite at runtime. If a file already exists,
+them stays out of the repo. `.stow-local-ignore` skips `.claude/settings.json`,
+`waybar/art.css` and `mimeapps.list`, which tools rewrite at runtime. If a file already exists,
 `stow` refuses to replace it; move it away (or use `stow --adopt .` and review
 `git diff`). `stow -D .` removes the links.
 
 Wallpapers are not included; `scripts/wallpaper /path/to/image.png` sets one.
 
-Main dependencies: `hyprland`, `waybar`, `swaybg`, `hyprlock`, `hypridle`,
-`hyprpolkitagent`, `kitty`, `fastfetch`, `vicinae`, `wofi`, `swaync`, `rofi`,
-`fish`, `playerctl`, `wireplumber` (`wpctl`), `cava`, ImageMagick 7 (`magick`),
-`curl`, `wl-clipboard`, `cliphist`, `grim`, `slurp`, `libnotify-bin`,
-`brightnessctl`, `blueman`, `network-manager-gnome`, `pavucontrol`, `nwg-bar`,
-`nautilus`, `jq`, `python3-gi` with GTK 4 and libadwaita, FontAwesome 4,
-Ubuntu Sans and URW Gothic (`fonts-urw-base35`).
+Dependencies available in apt are listed in `packages.txt` (ImageMagick must
+be 7, for `magick`). Two come from elsewhere: the `vicinae` launcher and Zen
+Browser.
 
 The bar and `Super+B` expect Zen Browser at `~/.local/opt/zen/zen`; the island
 follows Spotify. Monitor layout and the `intel_backlight` device are specific to
