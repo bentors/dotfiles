@@ -1,0 +1,11 @@
+# terminal cava (waybar's island uses waybar/cava-island.conf instead)
+[general]
+bar_width = 2
+bar_spacing = 1
+
+[color]
+# Tokyo Night blue -> purple, same as the Hyprland border gradient
+gradient = 1
+gradient_color_1 = '#7aa2f7'
+gradient_color_2 = '#8b5cf6'
+gradient_color_3 = '#bb9af7'

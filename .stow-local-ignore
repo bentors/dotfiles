@@ -10,3 +10,4 @@
 ^/\.claude/settings\.json
 ^/\.config/waybar/art\.css
 ^/\.config/mimeapps\.list
+^/screenshots

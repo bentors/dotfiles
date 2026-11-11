@@ -4,6 +4,14 @@ Hyprland desktop on Ubuntu with a purple Waybar and a media "dynamic island".
 
 ![](https://img.shields.io/badge/WM-Hyprland-8b5cf6) ![](https://img.shields.io/badge/bar-Waybar-8b5cf6)
 
+![Desktop: kitty with fastfetch, cava and git log tiled under the Waybar](screenshots/desktop.jpg)
+
+| Spotify panel on the island | hyprlock |
+|---|---|
+| ![Spotify panel opened from the island](screenshots/island.png) | ![hyprlock with the blue to purple input ring](screenshots/lock.jpg) |
+| **Wallpaper picker (`Alt+W`)** | **Notification center** |
+| ![rofi thumbnail grid of the wallpaper library](screenshots/rofi.png) | ![swaync with Wi-Fi, Bluetooth, sliders and media controls](screenshots/swaync.png) |
+
 ## What's inside
 
 | Path | What it is |
@@ -13,6 +21,7 @@ Hyprland desktop on Ubuntu with a purple Waybar and a media "dynamic island".
 | `.config/waybar/scripts/player-panel.py` | GTK4 Spotify panel that opens on hover over the island |
 | `.config/kitty/` | Translucent black terminal |
 | `.config/fastfetch/` | Purple fetch on terminal start |
+| `.config/cava/` | Terminal audio visualizer with the blue to purple gradient |
 | `.config/vicinae/` | Launcher settings (`Super+Space`) |
 | `.config/wofi/` | App menu style (`$menu` and the bar's launcher button) |
 | `.config/swaync/` | Notification center with Wi-Fi, Bluetooth, volume and media controls |

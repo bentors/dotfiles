@@ -17,3 +17,7 @@ __pycache__/
 # machine-local fish state and GitHub CLI tokens
 .config/fish/fish_variables
 .config/gh/
+
+# README screenshots are the exception
+!screenshots/*.jpg
+!screenshots/*.png
