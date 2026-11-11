@@ -23,8 +23,23 @@ Hyprland desktop on Ubuntu with a purple Waybar and a media "dynamic island".
 
 ## Install
 
-Copy the folders into `~/.config/` (or symlink them). Wallpapers are not
-included; `scripts/wallpaper /path/to/image.png` sets one.
+Files are symlinked into `$HOME` with [GNU Stow](https://www.gnu.org/software/stow/),
+so editing a config in place edits the repo:
+
+```sh
+sudo apt install stow
+git clone https://github.com/bentors/dotfiles ~/dotfiles
+cd ~/dotfiles && stow .
+cp .config/waybar/art.css ~/.config/waybar/   # runtime file, not linked
+```
+
+`.stowrc` links files one by one (`--no-folding`), so app state written next to
+them stays out of the repo. `.stow-local-ignore` skips `.claude/settings.json`
+and `waybar/art.css`, which tools rewrite at runtime. If a file already exists,
+`stow` refuses to replace it; move it away (or use `stow --adopt .` and review
+`git diff`). `stow -D .` removes the links.
+
+Wallpapers are not included; `scripts/wallpaper /path/to/image.png` sets one.
 
 Main dependencies: `hyprland`, `waybar`, `swaybg`, `hyprlock`, `hypridle`,
 `hyprpolkitagent`, `kitty`, `fastfetch`, `vicinae`, `wofi`, `swaync`, `rofi`,
@@ -41,7 +56,7 @@ this machine; adjust them in `hyprland.conf`, `scripts/backlight` and
 
 ## Claude Code
 
-Copy `.claude/*` into `~/.claude/`. `settings.json` holds only portable keys
+`stow .` links everything in `.claude/` except `settings.json`, which holds only portable keys
 (theme, status line, attribution off, plugins and marketplaces); merge it into
 an existing file instead of overwriting it. The status line needs `jq`.
 Credentials, history, memory and machine-specific hooks are never committed.
