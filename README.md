@@ -32,6 +32,38 @@ Hyprland desktop on Ubuntu with a purple Waybar and a media "dynamic island".
 | `packages.txt` | apt packages the configs depend on |
 | `.claude/` | Claude Code: global `CLAUDE.md`, status line, plugins and the `git-workflow` skill |
 
+## Keybinds
+
+`Super` is the main modifier. Full list in `.config/hypr/hyprland.conf`.
+
+| Keys | Action |
+|---|---|
+| `Super+Q` | Terminal (kitty) |
+| `Super+Space` | Launcher (vicinae) |
+| `Super+R` | App menu (wofi) |
+| `Super+E` | File manager (nautilus) |
+| `Super+B` | Browser (Zen) |
+| `Alt+W` | Wallpaper picker |
+| `Super+Shift+V` | Clipboard history |
+| `Super+N` | Clear notifications |
+| `Print` / `Shift+Print` | Screenshot of a region / of everything, copied to the clipboard |
+| `Super+L` | Lock screen |
+| `Super+Esc` | Power menu (nwg-bar) |
+| `Super+M` | Exit Hyprland |
+| `Super+C` | Close window |
+| `Super+F` / `Super+Shift+F` | Maximize / fullscreen |
+| `Super+V` | Toggle floating |
+| `Super+J` | Toggle split direction |
+| `Super+Arrows` | Move focus |
+| `Super+Shift+Arrows` | Move window |
+| `Super+Ctrl+Arrows` | Resize window |
+| `Super+drag` / `Super+right-drag` | Move / resize with the mouse |
+| `Alt+Tab` | Next window |
+| `Super+1`…`0` | Go to workspace 1–10 |
+| `Super+Shift+1`…`0` | Send window to workspace 1–10 |
+| `Super+Tab` | Previous workspace |
+| `Super+S` / `Super+Shift+S` | Scratchpad: toggle / send window |
+
 ## Install
 
 Files are symlinked into `$HOME` with [GNU Stow](https://www.gnu.org/software/stow/),

@@ -65,7 +65,14 @@ case ${1-} in
       exit 1
     fi
 
-    choice=$( { printf '%s\n' "$GRAY"; entries; } | rofi -dmenu -i -p "Wallpaper" -show-icons \
+    # Flat swatch so the "no wallpaper" entry has a thumbnail like the others
+    gray_icon="${XDG_CACHE_HOME:-$HOME/.cache}/wallpaper/gray.png"
+    if [ ! -s "$gray_icon" ]; then
+      mkdir -p "${gray_icon%/*}"
+      magick -size 320x180 xc:'#3a3a3a' "$gray_icon" 2>/dev/null || true
+    fi
+
+    choice=$( { printf '%s\0icon\x1f%s\n' "$GRAY" "$gray_icon"; entries; } | rofi -dmenu -i -p "Wallpaper" -show-icons \
                             -theme "$HOME/.config/rofi/wallpaper.rasi") || exit 0
     [ -z "$choice" ] && exit 0
     [ "$choice" = "$GRAY" ] && { none; exit 0; }
