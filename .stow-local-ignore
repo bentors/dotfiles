@@ -1,0 +1,10 @@
+# repo metadata, never linked into $HOME
+\.git
+^/\.gitignore
+^/README.*
+^/\.stowrc
+^/\.stow-local-ignore
+
+# rewritten at runtime by tools/scripts; kept here as reference copies only
+^/\.claude/settings\.json
+^/\.config/waybar/art\.css
