@@ -27,7 +27,6 @@
     }
   },
   "model": "opus",
-  "skipDangerousModePermissionPrompt": true,
   "env": {
     "ENABLE_TOOL_SEARCH": "auto"
   }

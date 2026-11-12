@@ -11,6 +11,7 @@ os controles sem que ele feche no meio do caminho.
 """
 
 import os
+import signal
 import socket
 import subprocess
 import sys
@@ -75,6 +76,9 @@ def monitores(sock_path):
 
 
 def main():
+    # Os Popen do toggle nunca recebem wait(); com SIG_IGN o kernel os recolhe
+    # sozinho e nao sobram processos <defunct>.
+    signal.signal(signal.SIGCHLD, signal.SIG_IGN)
     sock_path = hypr_socket_path()
     if not sock_path:
         print("HYPRLAND_INSTANCE_SIGNATURE ausente", file=sys.stderr)

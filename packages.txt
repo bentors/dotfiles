@@ -10,7 +10,9 @@ fish
 fonts-font-awesome
 fonts-ubuntu
 fonts-urw-base35
+gh
 gir1.2-adw-1
+git
 gir1.2-gtk-4.0
 grim
 hypridle
@@ -36,3 +38,4 @@ waybar
 wireplumber
 wl-clipboard
 wofi
+xdg-desktop-portal-hyprland

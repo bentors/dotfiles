@@ -12,10 +12,6 @@ ART_CSS="$HOME/.config/waybar/art.css"
 STYLE="$HOME/.config/waybar/style.css"
 mkdir -p "$ART_DIR"
 
-
-# Alturas por quadro: 5 barras, 10 quadros. Digito = indice em $NIVEIS.
-QUADROS='24613 35724 46835 37546 25637 14528 23716 35827 46718 25614'
-
 pango() {
   printf '%s' "$1" | sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g'
 }
@@ -55,7 +51,7 @@ anel() {
   [ "$passo" -gt "$PASSOS" ] && passo=$PASSOS
   alvo="$ART_DIR/$hash-$passo.png"
 
-  [ "$alvo" = "$(cat "$ART_DIR/atual" 2>/dev/null)" ] && [ -s "$ART_CSS" ] && return
+  [ "$alvo" = "$(cat "$ART_DIR/atual" 2>/dev/null)" ] && [ -s "$ART_DIR/pronto" ] && return
   [ -e "$ART_DIR/lock" ] && return
 
   printf '%s' "$alvo" > "$ART_DIR/atual"
@@ -88,26 +84,29 @@ anel() {
       -format '%[fx:int(255*r*0.38)],%[fx:int(255*g*0.38)],%[fx:int(255*b*0.38)]' \
       info: > "$cor" 2>/dev/null
 
-    {
-      printf '#custom-art { background-image: url("file://%s"); }\n' "$alvo"
-      # window#waybar: mais especifico que o #island do style.css
-      [ -s "$cor" ] && printf 'window#waybar #island { background-color: rgb(%s); }\n' "$(cat "$cor")"
-    } > "$ART_CSS"
+    # o modulo image#art (art.sh) mostra o PNG pronto; nao depende de recarregar CSS
+    printf '%s' "$alvo" > "$ART_DIR/pronto"
+
+    # tinta da ilha: CSS so e relido quando a Waybar recarrega o estilo
+    # (reload_style_on_change nao dispara com o style.css linkado pelo stow)
+    # window#waybar: mais especifico que o #island do style.css
+    [ -s "$cor" ] && printf 'window#waybar #island { background-color: rgb(%s); }\n' "$(cat "$cor")" > "$ART_CSS"
     ls -1t "$ART_DIR"/*.png 2>/dev/null | tail -n +4 | xargs -r rm -f
     ls -1t "$ART_DIR"/*.jpg 2>/dev/null | tail -n +3 | xargs -r rm -f
     ls -1t "$ART_DIR"/*.cor 2>/dev/null | tail -n +3 | xargs -r rm -f
-    touch "$STYLE"   # dispara reload_style_on_change
+    touch "$STYLE"
   ) &
 }
 
 anel_limpa() {
   [ -s "$ART_DIR/atual" ] || return
   : > "$ART_DIR/atual"
+  : > "$ART_DIR/pronto"
   : > "$ART_CSS"
   touch "$STYLE"
 }
 
-# --- estado, atualizado a cada POLL_QUADROS ---
+# --- estado, lido uma vez por execucao ---
 status=''; pos=0; dur=0; tooltip=''
 
 atualiza_estado() {
@@ -122,7 +121,10 @@ atualiza_estado() {
 
   dados=$(playerctl --player="$PLAYER" metadata \
     --format '{{status}}|{{title}}|{{artist}}|{{album}}|{{position}}|{{mpris:length}}|{{mpris:artUrl}}' 2>/dev/null)
-  status=$(printf '%s' "$dados" | cut -d'|' -f1)
+  # um so parse em vez de um "cut" por campo (o script roda a cada 1s)
+  IFS='|' read -r status titulo artista album pos_us dur_us art_url <<EOF
+$dados
+EOF
 
   if [ "$status" != "Playing" ] && [ "$status" != "Paused" ]; then
     echo off > "$ART_DIR/state"
@@ -133,12 +135,8 @@ atualiza_estado() {
 
   echo on > "$ART_DIR/state"
 
-  titulo=$(printf  '%s' "$dados" | cut -d'|' -f2)
-  artista=$(printf '%s' "$dados" | cut -d'|' -f3)
-  album=$(printf   '%s' "$dados" | cut -d'|' -f4)
-  pos=$(( $(printf '%s' "$dados" | cut -d'|' -f5) / 1000000 ))
-  dur=$(( $(printf '%s' "$dados" | cut -d'|' -f6) / 1000000 ))
-  art_url=$(printf '%s' "$dados" | cut -d'|' -f7)
+  pos=$(( ${pos_us:-0} / 1000000 ))
+  dur=$(( ${dur_us:-0} / 1000000 ))
 
   anel "$art_url" "$pos" "$dur"
 
