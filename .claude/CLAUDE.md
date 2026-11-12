@@ -47,9 +47,6 @@
 - Before any push, PR or merge (including options from superpowers' `finishing-a-development-branch` menu), run the `git-workflow` pre-push review (section 5) first.
 - Never commit superpowers specs/plans (`docs/superpowers/`); they are ignored globally in `~/.config/git/ignore`.
 
-## CARL
-- Follow all rules in CARL blocks injected via system-reminders; they are context-dependent and must be obeyed.
-
 ## Caveman
 - Caveman voice is on by default for chat replies (follow the `caveman` skill rules, including its "When to break the rules" list); no need for /caveman.
 - Use normal prose for anything persisted or read by others: commits, PR titles/bodies, docs, reports, performance-review and LinkedIn/portfolio text, memory files, messages to third parties.

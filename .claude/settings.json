@@ -15,7 +15,7 @@
     "ponytail@ponytail": true,
     "frontend-design@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
-    "code-review@claude-plugins-official": true,
+    "code-review@claude-plugins-official": false,
     "github@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
@@ -24,12 +24,11 @@
         "source": "github",
         "repo": "DietrichGebert/ponytail"
       }
-    },
-    "anthropic-agent-skills": {
-      "source": {
-        "source": "github",
-        "repo": "anthropics/skills"
-      }
     }
+  },
+  "model": "opus",
+  "skipDangerousModePermissionPrompt": true,
+  "env": {
+    "ENABLE_TOOL_SEARCH": "auto"
   }
 }
