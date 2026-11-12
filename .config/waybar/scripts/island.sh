@@ -51,7 +51,7 @@ anel() {
   [ "$passo" -gt "$PASSOS" ] && passo=$PASSOS
   alvo="$ART_DIR/$hash-$passo.png"
 
-  [ "$alvo" = "$(cat "$ART_DIR/atual" 2>/dev/null)" ] && [ -s "$ART_CSS" ] && return
+  [ "$alvo" = "$(cat "$ART_DIR/atual" 2>/dev/null)" ] && [ -s "$ART_DIR/pronto" ] && return
   [ -e "$ART_DIR/lock" ] && return
 
   printf '%s' "$alvo" > "$ART_DIR/atual"
@@ -84,21 +84,24 @@ anel() {
       -format '%[fx:int(255*r*0.38)],%[fx:int(255*g*0.38)],%[fx:int(255*b*0.38)]' \
       info: > "$cor" 2>/dev/null
 
-    {
-      printf '#custom-art { background-image: url("file://%s"); }\n' "$alvo"
-      # window#waybar: mais especifico que o #island do style.css
-      [ -s "$cor" ] && printf 'window#waybar #island { background-color: rgb(%s); }\n' "$(cat "$cor")"
-    } > "$ART_CSS"
+    # o modulo image#art (art.sh) mostra o PNG pronto; nao depende de recarregar CSS
+    printf '%s' "$alvo" > "$ART_DIR/pronto"
+
+    # tinta da ilha: CSS so e relido quando a Waybar recarrega o estilo
+    # (reload_style_on_change nao dispara com o style.css linkado pelo stow)
+    # window#waybar: mais especifico que o #island do style.css
+    [ -s "$cor" ] && printf 'window#waybar #island { background-color: rgb(%s); }\n' "$(cat "$cor")" > "$ART_CSS"
     ls -1t "$ART_DIR"/*.png 2>/dev/null | tail -n +4 | xargs -r rm -f
     ls -1t "$ART_DIR"/*.jpg 2>/dev/null | tail -n +3 | xargs -r rm -f
     ls -1t "$ART_DIR"/*.cor 2>/dev/null | tail -n +3 | xargs -r rm -f
-    touch "$STYLE"   # dispara reload_style_on_change
+    touch "$STYLE"
   ) &
 }
 
 anel_limpa() {
   [ -s "$ART_DIR/atual" ] || return
   : > "$ART_DIR/atual"
+  : > "$ART_DIR/pronto"
   : > "$ART_CSS"
   touch "$STYLE"
 }

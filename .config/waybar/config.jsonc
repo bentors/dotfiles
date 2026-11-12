@@ -22,7 +22,7 @@
     // "dynamic island": relógio; com o Spotify tocando ganha equalizador e capa
     "group/island": {
         "orientation": "horizontal",
-        "modules": ["custom/eq1", "custom/eq2", "custom/eq3", "custom/eq4", "custom/eq5", "custom/island", "custom/art"]
+        "modules": ["custom/eq1", "custom/eq2", "custom/eq3", "custom/eq4", "custom/eq5", "custom/island", "image#art"]
     },
     "custom/eq1": {
         "exec": "tail -n0 -F ${XDG_RUNTIME_DIR}/waybar-eq/1 2>/dev/null",
@@ -63,9 +63,10 @@
         "on-scroll-up": "playerctl --player=spotify next",
         "on-scroll-down": "playerctl --player=spotify previous"
     },
-    "custom/art": {
+    // modulo image: relê o PNG a cada intervalo, sem depender de recarregar CSS
+    "image#art": {
         "exec": "~/.config/waybar/scripts/art.sh",
-        "return-type": "json",
+        "size": 28,
         "interval": 1,
         "on-click": "hyprctl dispatch focuswindow class:Spotify"
     },
