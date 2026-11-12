@@ -12,10 +12,6 @@ ART_CSS="$HOME/.config/waybar/art.css"
 STYLE="$HOME/.config/waybar/style.css"
 mkdir -p "$ART_DIR"
 
-
-# Alturas por quadro: 5 barras, 10 quadros. Digito = indice em $NIVEIS.
-QUADROS='24613 35724 46835 37546 25637 14528 23716 35827 46718 25614'
-
 pango() {
   printf '%s' "$1" | sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g'
 }
@@ -107,7 +103,7 @@ anel_limpa() {
   touch "$STYLE"
 }
 
-# --- estado, atualizado a cada POLL_QUADROS ---
+# --- estado, lido uma vez por execucao ---
 status=''; pos=0; dur=0; tooltip=''
 
 atualiza_estado() {
@@ -122,7 +118,10 @@ atualiza_estado() {
 
   dados=$(playerctl --player="$PLAYER" metadata \
     --format '{{status}}|{{title}}|{{artist}}|{{album}}|{{position}}|{{mpris:length}}|{{mpris:artUrl}}' 2>/dev/null)
-  status=$(printf '%s' "$dados" | cut -d'|' -f1)
+  # um so parse em vez de um "cut" por campo (o script roda a cada 1s)
+  IFS='|' read -r status titulo artista album pos_us dur_us art_url <<EOF
+$dados
+EOF
 
   if [ "$status" != "Playing" ] && [ "$status" != "Paused" ]; then
     echo off > "$ART_DIR/state"
@@ -133,12 +132,8 @@ atualiza_estado() {
 
   echo on > "$ART_DIR/state"
 
-  titulo=$(printf  '%s' "$dados" | cut -d'|' -f2)
-  artista=$(printf '%s' "$dados" | cut -d'|' -f3)
-  album=$(printf   '%s' "$dados" | cut -d'|' -f4)
-  pos=$(( $(printf '%s' "$dados" | cut -d'|' -f5) / 1000000 ))
-  dur=$(( $(printf '%s' "$dados" | cut -d'|' -f6) / 1000000 ))
-  art_url=$(printf '%s' "$dados" | cut -d'|' -f7)
+  pos=$(( ${pos_us:-0} / 1000000 ))
+  dur=$(( ${dur_us:-0} / 1000000 ))
 
   anel "$art_url" "$pos" "$dur"
 
