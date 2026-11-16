@@ -9,6 +9,7 @@
     "pr": ""
   },
   "includeCoAuthoredBy": false,
+  "crossSessionInbound": "accept",
   "promptSuggestionEnabled": false,
   "skipWorkflowUsageWarning": true,
   "enabledPlugins": {
