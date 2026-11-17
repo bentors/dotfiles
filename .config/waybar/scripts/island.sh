@@ -90,7 +90,12 @@ anel() {
     # tinta da ilha: CSS so e relido quando a Waybar recarrega o estilo
     # (reload_style_on_change nao dispara com o style.css linkado pelo stow)
     # window#waybar: mais especifico que o #island do style.css
-    [ -s "$cor" ] && printf 'window#waybar #island { background-color: rgb(%s); }\n' "$(cat "$cor")" > "$ART_CSS"
+    # capa muito escura vira ilha quase preta: mantem o roxo padrao do style.css
+    if [ -s "$cor" ] && awk -F, '{ exit !($1 >= 40 || $2 >= 40 || $3 >= 40) }' "$cor"; then
+      printf 'window#waybar #island { background-color: rgb(%s); }\n' "$(cat "$cor")" > "$ART_CSS"
+    else
+      : > "$ART_CSS"
+    fi
     ls -1t "$ART_DIR"/*.png 2>/dev/null | tail -n +4 | xargs -r rm -f
     ls -1t "$ART_DIR"/*.jpg 2>/dev/null | tail -n +3 | xargs -r rm -f
     ls -1t "$ART_DIR"/*.cor 2>/dev/null | tail -n +3 | xargs -r rm -f
