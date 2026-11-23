@@ -12,7 +12,7 @@
 
 ## Plugins & skills
 - Ponytail is the default for coding tasks: smallest complete change, no over-engineering.
-- Superpowers process skills only where they pay off, not the "1% rule":
+- Superpowers process skills are vendored as personal skills in `dotfiles/.claude/skills` (plugin disabled to drop its SessionStart injection; refresh by re-copying from upstream). Use them only where they pay off, not the "1% rule":
   - `brainstorming` + `writing-plans` for new features or large changes;
   - `subagent-driven-development` to execute multi-task plans (see Delegation);
   - `systematic-debugging` for bugs and failing tests;
@@ -29,6 +29,14 @@
 - "N agentes disponíveis" = already-running Claude sessions, not spawn capacity.
 - When I am the peer receiving work: do it directly, never spawn subagents.
 - Keep briefs concise and self-contained: include the Docker and Git rules below; ask back only status, commits, a one-line test summary and concerns (no full diffs).
+
+## Context hygiene
+- When I switch to a task unrelated to the current session, suggest `/clear` before starting.
+- At the end of a milestone (plan step done, bug fixed, feature committed) in a long session, suggest `/compact <focus>` with a concrete focus line I can paste.
+- Delegate large searches, log/test-output reading and wide codebase sweeps to a subagent (Haiku/Explore) so the raw output stays out of the main context; ask back only the conclusion.
+
+## Compact instructions
+When compacting, preserve: the current goal and plan step, files changed (with paths), commands used to build/test, decisions made and why, open issues and next steps, branch name and commit state. Drop long tool outputs, file dumps and resolved dead ends.
 
 ## Reviewing delegated work
 - Review every delegated result: check requirements, inspect diffs, run tests.
