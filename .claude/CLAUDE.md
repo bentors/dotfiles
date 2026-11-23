@@ -12,7 +12,7 @@
 
 ## Plugins & skills
 - Ponytail is the default for coding tasks: smallest complete change, no over-engineering.
-- Superpowers process skills only where they pay off, not the "1% rule":
+- Superpowers process skills are vendored as personal skills in `dotfiles/.claude/skills` (plugin disabled to drop its SessionStart injection; refresh by re-copying from upstream). Use them only where they pay off, not the "1% rule":
   - `brainstorming` + `writing-plans` for new features or large changes;
   - `subagent-driven-development` to execute multi-task plans (see Delegation);
   - `systematic-debugging` for bugs and failing tests;
