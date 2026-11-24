@@ -124,12 +124,17 @@ atualiza_estado() {
     -e 's/Friday/sexta-feira/'     -e 's/Saturday/sabado/' \
     -e 's/Sunday/domingo/')
 
+  # separador \037 (unit separator): nao aparece em titulo/artista, ao contrario de '|'
+  US=$(printf '\037')
   dados=$(playerctl --player="$PLAYER" metadata \
-    --format '{{status}}|{{title}}|{{artist}}|{{album}}|{{position}}|{{mpris:length}}|{{mpris:artUrl}}' 2>/dev/null)
+    --format "{{status}}${US}{{title}}${US}{{artist}}${US}{{album}}${US}{{position}}${US}{{mpris:length}}${US}{{mpris:artUrl}}" 2>/dev/null)
   # um so parse em vez de um "cut" por campo (o script roda a cada 1s)
-  IFS='|' read -r status titulo artista album pos_us dur_us art_url <<EOF
+  IFS=$US read -r status titulo artista album pos_us dur_us art_url <<EOF
 $dados
 EOF
+  # so digitos entram na aritmetica (campo vazio ou texto vira 0)
+  case "$pos_us" in ''|*[!0-9]*) pos_us=0 ;; esac
+  case "$dur_us" in ''|*[!0-9]*) dur_us=0 ;; esac
 
   if [ "$status" != "Playing" ] && [ "$status" != "Paused" ]; then
     echo off > "$ART_DIR/state"
