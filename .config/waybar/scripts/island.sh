@@ -112,7 +112,8 @@ anel() {
     fi
     poda png 4; poda jpg 3; poda cor 3
     touch "$STYLE"
-  ) &
+  # stdout/stderr fora: senao o job herda o pipe da Waybar e ela espera o EOF
+  ) >/dev/null 2>&1 &
 }
 
 anel_limpa() {
