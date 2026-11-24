@@ -32,6 +32,14 @@ apply() {
 
 GRAY="Cinza padrão"
 
+# acha NOME.* na biblioteca comparando literalmente (sem glob); várias extensões: a primeira em ordem alfabética
+find_img() {
+  find "$LIB" -maxdepth 1 -type f -print | LC_ALL=C sort | while IFS= read -r f; do
+    b=${f##*/}
+    [ "${b%.*}" = "$1" ] && { printf '%s\n' "$f"; break; }
+  done || true
+}
+
 none() {
   pkill -x swaybg 2>/dev/null || true
   rm -f "$ACTIVE"
@@ -55,13 +63,14 @@ case ${1-} in
       find "$LIB" -maxdepth 1 -type f \
         \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) \
         | sort \
-        | while read -r f; do
+        | while IFS= read -r f; do
             printf '%s\0icon\x1f%s\n' "$(basename "${f%.*}")" "$f"
           done
     }
 
     if [ -z "$(entries)" ]; then
       echo "Nenhuma imagem em $LIB" >&2
+      command -v notify-send >/dev/null && notify-send -u low "Wallpaper" "Nenhuma imagem em $LIB" || true
       exit 1
     fi
 
@@ -77,18 +86,20 @@ case ${1-} in
     [ -z "$choice" ] && exit 0
     [ "$choice" = "$GRAY" ] && { none; exit 0; }
 
-    img=$(find "$LIB" -maxdepth 1 -type f -name "$choice.*" | head -1)
+    img=$(find_img "$choice")
     [ -z "$img" ] && { echo "Nao achei '$choice' em $LIB" >&2; exit 1; }
     apply "$img"
     ;;
-  /*|./*|~/*)
+  /*|./*|~/*|*/*)
     src=${1/#\~/$HOME}
     [ -f "$src" ] || { echo "Arquivo nao encontrado: $src" >&2; exit 1; }
     cp -f "$src" "$LIB/$(basename "$src")"
     apply "$LIB/$(basename "$src")"
     ;;
   *)
-    img=$(find "$LIB" -maxdepth 1 -type f -name "$1.*" | head -1)
+    # caminho relativo de um arquivo existente (ex.: foto.png): importa; senão é nome da biblioteca
+    if [ -f "$1" ]; then exec "$0" "./$1"; fi
+    img=$(find_img "$1")
     [ -z "$img" ] && { echo "Nao achei '$1' em $LIB" >&2; "$0" --list >&2; exit 1; }
     apply "$img"
     ;;
