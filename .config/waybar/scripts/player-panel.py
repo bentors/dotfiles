@@ -187,9 +187,11 @@ scale > trough > fill {
 
 def run(args):
     try:
+        # so o \n final: strip() comeria tambem os \x1f (isspace) do fim do
+        # playerctl e campos vazios sumiriam da contagem
         return subprocess.run(
             args, capture_output=True, text=True, timeout=2
-        ).stdout.strip()
+        ).stdout.rstrip("\n")
     except Exception:
         return ""
 
