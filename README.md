@@ -71,48 +71,86 @@ Files are symlinked into `$HOME` with [GNU Stow](https://www.gnu.org/software/st
 so editing a config in place edits the repo:
 
 ```sh
+sudo apt install -y git stow
 git clone https://github.com/bentors/dotfiles ~/dotfiles
 cd ~/dotfiles
 grep -vE '^\s*(#|$)' packages.txt | xargs sudo apt install -y
 stow .
-# machine-local monitor layout, sourced by hyprland.conf (must exist, can be empty)
-cp .config/hypr/monitors.conf.example ~/.config/hypr/monitors.conf
-# runtime-rewritten files are copied, not linked
-cp .config/waybar/art.css ~/.config/waybar/
-cp .config/mimeapps.list ~/.config/
+# machine-local monitor layout, sourced by hyprland.conf (must exist, can be empty);
+# do this before the first Hyprland login, or `source` shows a config error
+cp -n .config/hypr/monitors.conf.example ~/.config/hypr/monitors.conf
+# runtime-rewritten files are copied, not linked (cp -n never overwrites)
+cp -n .config/waybar/art.css ~/.config/waybar/
+cp -n .config/mimeapps.list ~/.config/
+mkdir -p ~/.claude && cp -n .claude/settings.json ~/.claude/
+# hyprlock background (gitignored); without it hyprlock falls back to a solid color.
+# Pick an image, or reuse the desktop one once scripts/wallpaper has set it:
+# cp /path/to/image.png ~/.config/hypr/wallpaper.png
+# ln -s desktop-wallpaper.png ~/.config/hypr/wallpaper.png
+# fish as the login shell
+chsh -s "$(command -v fish)"
 # purple accent for GTK/libadwaita apps (dconf, not a file)
 gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
 gsettings set org.gnome.desktop.interface gtk-theme 'Yaru-purple-dark'
 gsettings set org.gnome.desktop.interface accent-color 'purple'
 ```
 
-`.stowrc` links files one by one (`--no-folding`), so app state written next to
-them stays out of the repo. `.stow-local-ignore` skips `.claude/settings.json`,
-`waybar/art.css` and `mimeapps.list`, which tools rewrite at runtime. If a file already exists,
+`.stowrc` targets `$HOME`, so the clone can live anywhere, and links files one
+by one (`--no-folding`), so app state written next to them stays out of the
+repo. `.stow-local-ignore` skips `.claude/settings.json`, `waybar/art.css` and
+`mimeapps.list`, which tools rewrite at runtime. If a file already exists,
 `stow` refuses to replace it; move it away (or use `stow --adopt .` and review
 `git diff`). `stow -D .` removes the links.
 
-Wallpapers are not included; `scripts/wallpaper /path/to/image.png` sets one.
+Wallpapers are not included; `scripts/wallpaper /path/to/image.png` sets one
+(it writes `desktop-wallpaper.png`; the lock screen image is the separate
+`wallpaper.png` from the install block).
 
 Dependencies available in apt are listed in `packages.txt` (ImageMagick must
-be 7, for `magick`). Two come from elsewhere: the `vicinae` launcher and Zen
-Browser.
+be 7, for `magick`). The rest comes from elsewhere:
 
-The bar and `Super+B` expect Zen Browser at `~/.local/opt/zen/zen`; the island
-follows Spotify. The monitor layout lives in `~/.config/hypr/monitors.conf`,
-outside the repo; match monitors by `desc:` (see `monitors.conf.example` and
-`hyprctl monitors all`). The `intel_backlight` device is specific to this
-machine; adjust it in `scripts/backlight` and `swaync/config.json`.
+- `vicinae` launcher.
+- Zen Browser, unpacked in `~/.local/opt/zen/`. `mimeapps.list` expects
+  `~/.local/share/applications/zen.desktop`, for example (`Exec` needs an
+  absolute path: desktop files don't expand `$HOME` or `~`):
+
+  ```ini
+  [Desktop Entry]
+  Type=Application
+  Name=Zen Browser
+  Exec=/home/YOUR_USER/.local/opt/zen/zen %u
+  Categories=Network;WebBrowser;
+  MimeType=text/html;x-scheme-handler/http;x-scheme-handler/https;
+  ```
+- Spotify (snap), which the island follows.
+- Claude Code itself.
+- Node.js/npm are in `packages.txt`; for the caveman CLI use a user prefix with
+  `npm config set prefix ~/.npm-global` (fish already puts `~/.npm-global/bin`
+  on `PATH`).
+
+The bar and `Super+B` expect Zen Browser at `~/.local/opt/zen/zen`. The monitor
+layout lives in `~/.config/hypr/monitors.conf`, outside the repo; match monitors
+by `desc:` (see `monitors.conf.example` and `hyprctl monitors all`). It is the
+single source of layout: with the lid closed and another monitor connected, the
+lid script disables the internal panel, and opening the lid runs `hyprctl reload`
+so `monitors.conf` applies again. `scripts/backlight` uses `brightnessctl -c
+backlight`, which auto-detects the device (`DEVICE` in the script is only the
+sysfs fallback). The swaync brightness slider is the exception: set
+`backlight.device` in `.config/swaync/config.json` (currently `intel_backlight`)
+for each machine.
 
 Config autoreload is off: a non-atomic save can make Hyprland parse a half-written
 file, moving monitors to auto positions and, on 0.53.3, leaving Waybar and the
 wallpaper at the old position. Reload with `Super+Shift+R` after editing.
+That reload does not restart the `exec-once` daemons: after editing
+`hypridle.conf`, run `pkill hypridle; hypridle & disown`.
 
 ## Claude Code
 
 `stow .` links everything in `.claude/` except `settings.json`, which holds only portable keys
-(theme, status line, attribution off, plugins and marketplaces); merge it into
-an existing file instead of overwriting it. The status line needs `jq`.
+(theme, status line, attribution off, plugins and marketplaces); the install block
+copies it with `cp -n` on a fresh machine. If `~/.claude/settings.json` already exists,
+merge it in instead of overwriting. The status line needs `jq`.
 Credentials, history, memory and machine-specific hooks are never committed.
 
 - `.claude/agents/`: subagents with a pinned model per role (`implementer`,
