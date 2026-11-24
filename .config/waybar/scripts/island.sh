@@ -60,7 +60,10 @@ anel() {
   [ "$passo" -gt "$PASSOS" ] && passo=$PASSOS
   alvo="$ART_DIR/$hash-$passo.png"
 
-  [ "$alvo" = "$(cat "$ART_DIR/atual" 2>/dev/null)" ] && [ -s "$ART_DIR/pronto" ] && return
+  # "pronto" tem de ser o alvo atual: se curl/magick falharam ele ainda aponta
+  # para a faixa anterior, e assim a proxima execucao tenta de novo
+  [ "$alvo" = "$(cat "$ART_DIR/atual" 2>/dev/null)" ] \
+    && [ "$alvo" = "$(cat "$ART_DIR/pronto" 2>/dev/null)" ] && return
   # lock atomico (mkdir) em XDG_RUNTIME_DIR: some no logout/reboot, entao um
   # SIGKILL no meio do curl/magick nao trava a capa para sempre. As 3 instancias
   # disputam; lock com mais de 1 min e tratado como abandonado.
