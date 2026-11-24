@@ -1,0 +1,13 @@
+# Modelo do layout de monitores por máquina.
+# Copie para ~/.config/hypr/monitors.conf (arquivo local, fora do repo) e ajuste.
+# O arquivo precisa existir (mesmo vazio): o hyprland.conf faz `source` dele.
+# Ver https://wiki.hypr.land/Configuring/Monitors/
+# Liste os monitores com: hyprctl monitors all
+
+# Prefira casar pela descrição (inclui o serial) em vez da porta,
+# que muda conforme cabo/dock:
+# monitor=desc:<fabricante> <modelo> <serial>,preferred,0x0,1
+# monitor=desc:<fabricante> <modelo> <serial>,preferred,1920x0,1
+
+# Tela do notebook:
+# monitor=eDP-1,preferred,auto,1.25
