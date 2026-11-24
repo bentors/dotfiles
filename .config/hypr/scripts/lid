@@ -1,12 +1,21 @@
 #!/usr/bin/env bash
 # Tampa do notebook: fechada desliga o painel interno, aberta devolve o layout
 # do monitors.conf (fonte única da posição/escala, por isso o reload).
-# Chamado pelo switch da tampa e por um `exec =` (roda a cada reload e no boot).
+#
+#   lid          (exec/login/reload) só desliga o painel se a tampa está fechada; NUNCA recarrega
+#   lid switch   (switch da tampa) além disso, tampa aberta + painel desligado => reload
+#
+# Sem loop possível: o caminho do exec nunca recarrega, então não precisa de trava.
+# Bug do Hyprland 0.53: um reload que MOVE um monitor deixa as layer surfaces (waybar,
+# wallpaper) na posição antiga; um segundo reload ~1 s depois as reorganiza. Ele roda em
+# background (subshell) para não segurar o processo do bind.
 #
 # Teste sem tocar no Hyprland: LID_DRY_RUN=1 (imprime o comando em vez de rodar),
 # LID_STATE_FILE=<arquivo de estado da tampa>, LID_MONITORS_JSON=<json de `hyprctl monitors all -j`>.
 
 set -euo pipefail
+
+mode=${1-}
 
 run() {
     if [ -n "${LID_DRY_RUN:-}" ]; then echo "hyprctl $*"; else hyprctl "$@"; fi
@@ -22,7 +31,7 @@ else
     json=$(hyprctl monitors all -j)
 fi
 
-panel=$(jq -r '[.[] | select(.name | test("^(eDP|LVDS)"))][0].name // empty' <<< "$json")
+panel=$(jq -r '[.[] | select(.name | test("^(eDP|LVDS|DSI)"))][0].name // empty' <<< "$json")
 [ -n "$panel" ] || exit 0
 
 disabled=$(jq -r --arg p "$panel" '.[] | select(.name == $p) | .disabled' <<< "$json")
@@ -33,15 +42,11 @@ if [ "$lid" = closed ]; then
     if [ "$disabled" = false ] && [ "$others" -gt 0 ]; then
         run keyword monitor "$panel, disable"
     fi
-elif [ "$disabled" = true ]; then
-    # Sem loop: o exec roda DEPOIS do reload e o reload reabilita o painel, então
-    # a segunda passada cai no no-op (tampa aberta + painel ativo). A trava abaixo
-    # cobre o caso do monitors.conf desativar o painel de propósito (senão reload infinito).
-    stamp=${LID_STAMP:-${XDG_RUNTIME_DIR:-/tmp}/hypr-lid-reload}
-    now=$(date +%s)
-    last=$(stat -c %Y "$stamp" 2>/dev/null || echo 0)
-    if [ $((now - last)) -ge 10 ]; then
-        [ -n "${LID_DRY_RUN:-}" ] || touch "$stamp"
-        run reload
+elif [ "$mode" = switch ] && [ "$disabled" = true ]; then
+    run reload
+    if [ -n "${LID_DRY_RUN:-}" ]; then
+        echo "(sleep 1) hyprctl reload"
+    else
+        ( sleep 1; hyprctl reload ) >/dev/null 2>&1 &
     fi
 fi
