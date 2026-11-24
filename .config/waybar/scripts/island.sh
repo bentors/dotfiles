@@ -17,8 +17,10 @@ pango() {
 }
 
 json() {
+  # tab vira \t; os demais controles (exceto \n, tratado no awk) sao descartados
   printf '%s' "$1" \
-    | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' \
+    | tr -d '\000-\010\013-\037\177' \
+    | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/\t/\\t/g' \
     | awk '{ printf "%s%s", (NR > 1 ? "\\n" : ""), $0 }'
 }
 
