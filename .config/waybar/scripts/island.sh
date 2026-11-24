@@ -122,6 +122,13 @@ anel_limpa() {
 # --- estado, lido uma vez por execucao ---
 status=''; pos=0; dur=0; tooltip=''
 
+# so escreve quando o valor muda (roda a cada 1s, em 3 instancias)
+grava_estado() {
+  atual_estado=''
+  { read -r atual_estado < "$ART_DIR/state"; } 2>/dev/null
+  [ "$atual_estado" = "$1" ] || echo "$1" > "$ART_DIR/state"
+}
+
 atualiza_estado() {
   # mesmo formato do relógio que a barra tinha antes
   relogio=$(LC_ALL=C date +'%H:%M - %A, %b %d' | tr A-Z a-z)
@@ -145,13 +152,13 @@ EOF
   case "$dur_us" in ''|*[!0-9]*) dur_us=0 ;; esac
 
   if [ "$status" != "Playing" ] && [ "$status" != "Paused" ]; then
-    echo off > "$ART_DIR/state"
+    grava_estado off
     anel_limpa
     tooltip="<b>$dia</b>"
     return
   fi
 
-  echo on > "$ART_DIR/state"
+  grava_estado on
 
   pos=$(( ${pos_us:-0} / 1000000 ))
   dur=$(( ${dur_us:-0} / 1000000 ))
