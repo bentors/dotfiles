@@ -29,8 +29,9 @@ mmss() {
 }
 
 corta() {
-  printf '%s' "$1" | awk -v n="$2" \
-    '{ if (length($0) > n) print substr($0, 1, n - 1) "…"; else print $0 }'
+  # sed em locale UTF-8 conta caracteres; o mawk do Ubuntu conta bytes e
+  # cortava "Canção" no meio do "ç"
+  printf '%s' "$1" | LC_ALL=C.UTF-8 sed -E "s/^(.{$(($2 - 1))}).{2,}\$/\\1…/"
 }
 
 repete() {
