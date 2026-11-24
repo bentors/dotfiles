@@ -8,7 +8,7 @@
 ^/packages\.txt
 
 # this file replaces stow's default ignore list, so mirror the .gitignore junk
-\.bak
+.*\.bak.*
 __pycache__
 
 # rewritten at runtime by tools/scripts (replacing links); copied, not linked
