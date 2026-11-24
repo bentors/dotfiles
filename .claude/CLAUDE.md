@@ -24,16 +24,22 @@
 
 ## Delegation
 - Do trivial work directly.
+- Prefer the custom agents in `~/.claude/agents`, which pin model, tools, rules and report format:
+  - `implementer` (Sonnet): implementation and fixes from a brief;
+  - `test-runner` (Haiku): run tests/lint/build, return only failures;
+  - `code-searcher` (Haiku): read-only lookups and flow tracing;
+  - `reviewer` (Opus): read-only final review before push/PR and of delegated work.
+  With these, a brief only needs the task, relevant files and acceptance criteria. Use built-ins (Explore, Plan, general-purpose) only when no custom agent fits, and then set the model explicitly.
 - Multi-task plans: execute with subagents, model per role (see Models).
 - Peer sessions (ListAgents + SendMessage) for parallel work outside the current plan (another repo or front); tell peers to do the work themselves, no subagents/workflows.
 - "N agentes disponíveis" = already-running Claude sessions, not spawn capacity.
 - When I am the peer receiving work: do it directly, never spawn subagents.
-- Keep briefs concise and self-contained: include the Docker and Git rules below; ask back only status, commits, a one-line test summary and concerns (no full diffs).
+- Keep briefs concise and self-contained. For agents without those rules built in (built-ins, peers), include the Docker and Git rules below and ask back only status, commits, a one-line test summary and concerns (no full diffs).
 
 ## Context hygiene
 - When I switch to a task unrelated to the current session, suggest `/clear` before starting.
 - At the end of a milestone (plan step done, bug fixed, feature committed) in a long session, suggest `/compact <focus>` with a concrete focus line I can paste.
-- Delegate large searches, log/test-output reading and wide codebase sweeps to a subagent (Haiku/Explore) so the raw output stays out of the main context; ask back only the conclusion.
+- Delegate large searches, log/test-output reading and wide codebase sweeps to a subagent (`test-runner` / `code-searcher`) so the raw output stays out of the main context; ask back only the conclusion.
 
 ## Compact instructions
 When compacting, preserve: the current goal and plan step, files changed (with paths), commands used to build/test, decisions made and why, open issues and next steps, branch name and commit state. Drop long tool outputs, file dumps and resolved dead ends.
