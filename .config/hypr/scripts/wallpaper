@@ -36,6 +36,7 @@ GRAY="Cinza padrão"
 find_img() {
   find "$LIB" -maxdepth 1 -type f -print | LC_ALL=C sort | while IFS= read -r f; do
     b=${f##*/}
+    case ${b,,} in *.png|*.jpg|*.jpeg|*.webp) ;; *) continue ;; esac
     [ "${b%.*}" = "$1" ] && { printf '%s\n' "$f"; break; }
   done || true
 }
@@ -93,7 +94,8 @@ case ${1-} in
   /*|./*|~/*|*/*)
     src=${1/#\~/$HOME}
     [ -f "$src" ] || { echo "Arquivo nao encontrado: $src" >&2; exit 1; }
-    cp -f "$src" "$LIB/$(basename "$src")"
+    # já é o arquivo da biblioteca: cp com origem == destino abortaria sob set -e
+    [ "$src" -ef "$LIB/$(basename "$src")" ] || cp -f "$src" "$LIB/$(basename "$src")"
     apply "$LIB/$(basename "$src")"
     ;;
   *)
