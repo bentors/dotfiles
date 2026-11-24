@@ -12,8 +12,9 @@ fonts-ubuntu
 fonts-urw-base35
 gh
 gir1.2-adw-1
-git
 gir1.2-gtk-4.0
+git
+gnome-control-center
 grim
 hypridle
 hyprland
@@ -25,10 +26,13 @@ kitty
 libnotify-bin
 nautilus
 network-manager-gnome
+nodejs
+npm
 nwg-bar
 pavucontrol
 playerctl
 python3-gi
+python3-gi-cairo
 rofi
 slurp
 stow
