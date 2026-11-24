@@ -44,6 +44,12 @@ repete() {
 PASSOS=36
 ANEL_TRILHA='#4a2f87'
 
+# poda EXT N: mantem os N arquivos *.EXT mais recentes (le linha a linha: aguenta espacos)
+poda() {
+  ls -1t "$ART_DIR"/*."$1" 2>/dev/null | tail -n +"$(($2 + 1))" \
+    | while IFS= read -r f; do rm -f -- "$f"; done
+}
+
 anel() {
   url="$1"; pos="$2"; dur="$3"
   [ -z "$url" ] && { anel_limpa; return; }
@@ -104,9 +110,7 @@ anel() {
     else
       : > "$ART_CSS"
     fi
-    ls -1t "$ART_DIR"/*.png 2>/dev/null | tail -n +4 | xargs -r rm -f
-    ls -1t "$ART_DIR"/*.jpg 2>/dev/null | tail -n +3 | xargs -r rm -f
-    ls -1t "$ART_DIR"/*.cor 2>/dev/null | tail -n +3 | xargs -r rm -f
+    poda png 4; poda jpg 3; poda cor 3
     touch "$STYLE"
   ) &
 }
