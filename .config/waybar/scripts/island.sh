@@ -60,7 +60,14 @@ anel() {
   [ "$passo" -gt "$PASSOS" ] && passo=$PASSOS
   alvo="$ART_DIR/$hash-$passo.png"
 
-  [ "$alvo" = "$(cat "$ART_DIR/atual" 2>/dev/null)" ] && [ -s "$ART_DIR/pronto" ] && return
+  # "pronto" tem de ser o alvo atual: se curl/magick falharam ele ainda aponta
+  # para a faixa anterior, e assim a proxima execucao tenta de novo
+  [ "$alvo" = "$(cat "$ART_DIR/atual" 2>/dev/null)" ] \
+    && [ "$alvo" = "$(cat "$ART_DIR/pronto" 2>/dev/null)" ] && return
+  # download da capa falhou ha menos de 30 s (offline, URL quebrada): espera antes
+  # de tentar de novo, em vez de um curl por segundo
+  falha="${XDG_RUNTIME_DIR:-/tmp}/waybar-island-art.$hash.falha"
+  [ -e "$falha" ] && [ $(( $(date +%s) - $(stat -c %Y "$falha" 2>/dev/null || echo 0) )) -lt 30 ] && return
   # lock atomico (mkdir) em XDG_RUNTIME_DIR: some no logout/reboot, entao um
   # SIGKILL no meio do curl/magick nao trava a capa para sempre. As 3 instancias
   # disputam; lock com mais de 1 min e tratado como abandonado.
@@ -75,8 +82,9 @@ anel() {
     # temporarios por processo ($$) + mv: arquivo meio escrito nunca parece pronto
     capa="$ART_DIR/$hash.jpg"
     if [ ! -s "$capa" ]; then
-      curl -sfL --max-time 6 -o "$capa.$$.tmp" "$url" && mv "$capa.$$.tmp" "$capa" \
-        || { rm -f "$capa.$$.tmp"; exit 0; }
+      curl -sfL --max-time 6 -o "$capa.$$.tmp" -- "$url" && mv "$capa.$$.tmp" "$capa" \
+        || { rm -f "$capa.$$.tmp"; : > "$falha"; exit 0; }
+      rm -f "$falha"
     fi
 
     if [ ! -s "$alvo" ]; then
@@ -112,7 +120,8 @@ anel() {
     fi
     poda png 4; poda jpg 3; poda cor 3
     touch "$STYLE"
-  ) &
+  # stdout/stderr fora: senao o job herda o pipe da Waybar e ela espera o EOF
+  ) >/dev/null 2>&1 &
 }
 
 anel_limpa() {
