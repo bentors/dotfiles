@@ -30,7 +30,7 @@ Hyprland desktop on Ubuntu with a purple Waybar and a media "dynamic island".
 | `.config/mimeapps.list` | Zen Browser as the default for web links and HTML |
 | `.gitconfig` | Git identity, GitHub auth through `gh` |
 | `packages.txt` | apt packages the configs depend on |
-| `.claude/` | Claude Code: global `CLAUDE.md`, status line, plugins and the `git-workflow` skill |
+| `.claude/` | Claude Code: global `CLAUDE.md`, status line, plugins, custom agents and skills |
 
 ## Keybinds
 
@@ -50,6 +50,7 @@ Hyprland desktop on Ubuntu with a purple Waybar and a media "dynamic island".
 | `Super+L` | Lock screen |
 | `Super+Esc` | Power menu (nwg-bar) |
 | `Super+M` | Exit Hyprland |
+| `Super+Shift+R` | Reload the Hyprland config (autoreload is off) |
 | `Super+C` | Close window |
 | `Super+F` / `Super+Shift+F` | Maximize / fullscreen |
 | `Super+V` | Toggle floating |
@@ -74,6 +75,8 @@ git clone https://github.com/bentors/dotfiles ~/dotfiles
 cd ~/dotfiles
 grep -vE '^\s*(#|$)' packages.txt | xargs sudo apt install -y
 stow .
+# machine-local monitor layout, sourced by hyprland.conf (must exist, can be empty)
+cp .config/hypr/monitors.conf.example ~/.config/hypr/monitors.conf
 # runtime-rewritten files are copied, not linked
 cp .config/waybar/art.css ~/.config/waybar/
 cp .config/mimeapps.list ~/.config/
@@ -96,9 +99,14 @@ be 7, for `magick`). Two come from elsewhere: the `vicinae` launcher and Zen
 Browser.
 
 The bar and `Super+B` expect Zen Browser at `~/.local/opt/zen/zen`; the island
-follows Spotify. Monitor layout and the `intel_backlight` device are specific to
-this machine; adjust them in `hyprland.conf`, `scripts/backlight` and
-`swaync/config.json`.
+follows Spotify. The monitor layout lives in `~/.config/hypr/monitors.conf`,
+outside the repo; match monitors by `desc:` (see `monitors.conf.example` and
+`hyprctl monitors all`). The `intel_backlight` device is specific to this
+machine; adjust it in `scripts/backlight` and `swaync/config.json`.
+
+Config autoreload is off: a non-atomic save can make Hyprland parse a half-written
+file, moving monitors to auto positions and, on 0.53.3, leaving Waybar and the
+wallpaper at the old position. Reload with `Super+Shift+R` after editing.
 
 ## Claude Code
 
@@ -107,9 +115,16 @@ this machine; adjust them in `hyprland.conf`, `scripts/backlight` and
 an existing file instead of overwriting it. The status line needs `jq`.
 Credentials, history, memory and machine-specific hooks are never committed.
 
+- `.claude/agents/`: subagents with a pinned model per role (`implementer`,
+  `test-runner`, `code-searcher`, `reviewer`). `stow` links them file by file.
+- `.claude/skills/`: `git-workflow` plus the superpowers process skills, vendored
+  (MIT, see `SUPERPOWERS-LICENSE`) with the plugin disabled to skip its
+  SessionStart context injection. Refresh by copying them again from upstream.
+
 Not versioned, reinstalled by their own tools:
 
 - Caveman skills (`caveman`, `ultracave`, `megacave`), hooks and MCP:
   `npm i -g @caveman-ai/cli && caveman setup --agent-native claude`
-- claude.ai connectors (Gmail, Slack, Notion...) come back with the login;
-  the GitHub MCP comes with the `github` plugin.
+- claude.ai connectors come back with the login, but `settings.json` sets
+  `ENABLE_CLAUDEAI_MCP_SERVERS=false` to keep them out of Claude Code; the
+  `github` plugin is disabled too (the `gh` CLI covers it).
