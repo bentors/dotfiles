@@ -49,9 +49,10 @@ while :; do
 
     n=$((n + 1))
     if [ "$n" -ge "$LIMPA_A_CADA" ]; then
-      # Truncar e seguro: o "tail -F" detecta e volta ao inicio, que estara
-      # vazio. Nao ha replay de quadros velhos.
-      for i in 1 2 3 4 5; do : > "$DIR/$i"; done
+      # Troca atomica por arquivo novo: o "tail -F" (por nome) reabre e le do
+      # inicio, que estara vazio. Truncar no lugar o uutils tail as vezes nao
+      # percebe e a barra congela. Nao ha replay de quadros velhos.
+      for i in 1 2 3 4 5; do : > "$DIR/$i.new" && mv -f "$DIR/$i.new" "$DIR/$i"; done
       n=0
     fi
   done < "$PIPE"
