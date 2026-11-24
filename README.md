@@ -78,11 +78,11 @@ grep -vE '^\s*(#|$)' packages.txt | xargs sudo apt install -y
 stow .
 # machine-local monitor layout, sourced by hyprland.conf (must exist, can be empty);
 # do this before the first Hyprland login, or `source` shows a config error
-cp -n .config/hypr/monitors.conf.example ~/.config/hypr/monitors.conf
-# runtime-rewritten files are copied, not linked (cp -n never overwrites)
-cp -n .config/waybar/art.css ~/.config/waybar/
-cp -n .config/mimeapps.list ~/.config/
-mkdir -p ~/.claude && cp -n .claude/settings.json ~/.claude/
+cp --update=none .config/hypr/monitors.conf.example ~/.config/hypr/monitors.conf
+# runtime-rewritten files are copied, not linked (--update=none never overwrites)
+cp --update=none .config/waybar/art.css ~/.config/waybar/
+cp --update=none .config/mimeapps.list ~/.config/
+mkdir -p ~/.claude && cp --update=none .claude/settings.json ~/.claude/
 # hyprlock background (gitignored); without it hyprlock falls back to a solid color.
 # Pick an image, or reuse the desktop one once scripts/wallpaper has set it:
 # cp /path/to/image.png ~/.config/hypr/wallpaper.png
@@ -132,12 +132,20 @@ The bar and `Super+B` expect Zen Browser at `~/.local/opt/zen/zen`. The monitor
 layout lives in `~/.config/hypr/monitors.conf`, outside the repo; match monitors
 by `desc:` (see `monitors.conf.example` and `hyprctl monitors all`). It is the
 single source of layout: with the lid closed and another monitor connected, the
-lid script disables the internal panel, and opening the lid runs `hyprctl reload`
-so `monitors.conf` applies again. `scripts/backlight` uses `brightnessctl -c
+lid script disables the internal panel; opening the lid runs `hyprctl reload`
+so `monitors.conf` applies again, plus a second reload a second later (on 0.53.3
+a reload that moves a monitor leaves Waybar and the wallpaper behind until the
+next one). The script also runs on every reload and at login, where it only
+disables the panel if the lid is closed, so `Super+Shift+R` while docked with the
+lid closed briefly lights the panel before turning it off again. Plugging a
+monitor in while the lid is already closed doesn't trigger it; reload once. `scripts/backlight` uses `brightnessctl -c
 backlight`, which auto-detects the device (`DEVICE` in the script is only the
 sysfs fallback). The swaync brightness slider is the exception: set
 `backlight.device` in `.config/swaync/config.json` (currently `intel_backlight`)
 for each machine.
+
+If `~/.config/mimeapps.list` already exists, the install block leaves it alone;
+merge the repo's entries into it to make Zen the default browser.
 
 Config autoreload is off: a non-atomic save can make Hyprland parse a half-written
 file, moving monitors to auto positions and, on 0.53.3, leaving Waybar and the
@@ -148,9 +156,13 @@ That reload does not restart the `exec-once` daemons: after editing
 ## Claude Code
 
 `stow .` links everything in `.claude/` except `settings.json`, which holds only portable keys
-(theme, status line, attribution off, plugins and marketplaces); the install block
-copies it with `cp -n` on a fresh machine. If `~/.claude/settings.json` already exists,
-merge it in instead of overwriting. The status line needs `jq`.
+(theme, model, status line, attribution off, env, plugins and marketplaces); the install block
+copies it with `cp --update=none` on a fresh machine. If `~/.claude/settings.json` already exists,
+merge it in instead of overwriting. The status line needs `jq`; it also forwards
+its input to `~/.orca/agent-hooks/claude-statusline.sh` when that file exists
+(personal tooling, a no-op elsewhere). If the `ponytail` plugin isn't installed
+on first launch, add it with `/plugin marketplace add DietrichGebert/ponytail`
+and `/plugin install ponytail@ponytail`.
 Credentials, history, memory and machine-specific hooks are never committed.
 
 - `.claude/agents/`: subagents with a pinned model per role (`implementer`,

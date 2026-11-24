@@ -1,5 +1,10 @@
 *.bak*
 __pycache__/
+# editor junk
+*~
+.#*
+\#*\#
+.*.sw[po]
 # wallpapers stay out of the repo
 *.png
 *.jpg

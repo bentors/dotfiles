@@ -10,6 +10,11 @@
 # this file replaces stow's default ignore list, so mirror the .gitignore junk
 .*\.bak.*
 __pycache__
+# editor junk (was in stow's default list, which this file replaces) and vim swap files
+.*~
+\.\#.*
+\#.*\#
+\..*\.sw[po]
 
 # rewritten at runtime by tools/scripts (replacing links); copied, not linked
 ^/\.claude/settings\.json
