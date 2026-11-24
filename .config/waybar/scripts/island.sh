@@ -78,7 +78,7 @@ anel() {
     # temporarios por processo ($$) + mv: arquivo meio escrito nunca parece pronto
     capa="$ART_DIR/$hash.jpg"
     if [ ! -s "$capa" ]; then
-      curl -sfL --max-time 6 -o "$capa.$$.tmp" "$url" && mv "$capa.$$.tmp" "$capa" \
+      curl -sfL --max-time 6 -o "$capa.$$.tmp" -- "$url" && mv "$capa.$$.tmp" "$capa" \
         || { rm -f "$capa.$$.tmp"; exit 0; }
     fi
 
