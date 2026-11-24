@@ -17,8 +17,10 @@ pango() {
 }
 
 json() {
+  # tab vira \t; os demais controles (exceto \n, tratado no awk) sao descartados
   printf '%s' "$1" \
-    | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' \
+    | tr -d '\000-\010\013-\037\177' \
+    | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/\t/\\t/g' \
     | awk '{ printf "%s%s", (NR > 1 ? "\\n" : ""), $0 }'
 }
 
@@ -29,8 +31,9 @@ mmss() {
 }
 
 corta() {
-  printf '%s' "$1" | awk -v n="$2" \
-    '{ if (length($0) > n) print substr($0, 1, n - 1) "…"; else print $0 }'
+  # sed em locale UTF-8 conta caracteres; o mawk do Ubuntu conta bytes e
+  # cortava "Canção" no meio do "ç"
+  printf '%s' "$1" | LC_ALL=C.UTF-8 sed -E "s/^(.{$(($2 - 1))}).{2,}\$/\\1…/"
 }
 
 repete() {
@@ -40,6 +43,12 @@ repete() {
 # --- capa circular com anel de progresso (composta com ImageMagick) ---
 PASSOS=36
 ANEL_TRILHA='#4a2f87'
+
+# poda EXT N: mantem os N arquivos *.EXT mais recentes (le linha a linha: aguenta espacos)
+poda() {
+  ls -1t "$ART_DIR"/*."$1" 2>/dev/null | tail -n +"$(($2 + 1))" \
+    | while IFS= read -r f; do rm -f -- "$f"; done
+}
 
 anel() {
   url="$1"; pos="$2"; dur="$3"
@@ -52,17 +61,22 @@ anel() {
   alvo="$ART_DIR/$hash-$passo.png"
 
   [ "$alvo" = "$(cat "$ART_DIR/atual" 2>/dev/null)" ] && [ -s "$ART_DIR/pronto" ] && return
-  [ -e "$ART_DIR/lock" ] && return
+  # lock atomico (mkdir) em XDG_RUNTIME_DIR: some no logout/reboot, entao um
+  # SIGKILL no meio do curl/magick nao trava a capa para sempre. As 3 instancias
+  # disputam; lock com mais de 1 min e tratado como abandonado.
+  lock="${XDG_RUNTIME_DIR:-/tmp}/waybar-island-art.lock"
+  [ -n "$(find "$lock" -maxdepth 0 -mmin +1 2>/dev/null)" ] && rmdir "$lock" 2>/dev/null
+  mkdir "$lock" 2>/dev/null || return
 
   printf '%s' "$alvo" > "$ART_DIR/atual"
   (
-    : > "$ART_DIR/lock"
-    trap 'rm -f "$ART_DIR/lock"' EXIT
+    trap 'rmdir "$lock"' EXIT
 
+    # temporarios por processo ($$) + mv: arquivo meio escrito nunca parece pronto
     capa="$ART_DIR/$hash.jpg"
     if [ ! -s "$capa" ]; then
-      curl -sfL --max-time 6 -o "$capa.tmp" "$url" && mv "$capa.tmp" "$capa" \
-        || { rm -f "$capa.tmp"; exit 0; }
+      curl -sfL --max-time 6 -o "$capa.$$.tmp" "$url" && mv "$capa.$$.tmp" "$capa" \
+        || { rm -f "$capa.$$.tmp"; exit 0; }
     fi
 
     if [ ! -s "$alvo" ]; then
@@ -75,14 +89,14 @@ anel() {
         -gravity center -compose over -composite \
         -stroke "$ANEL_TRILHA" -strokewidth 3 -fill none -draw "ellipse 22,22 19,19 0,360" \
         -stroke "$ACENTO" -strokewidth 3 -fill none -draw "ellipse 22,22 19,19 -90,$fim" \
-        "PNG:$alvo.tmp" 2>/dev/null && mv "$alvo.tmp" "$alvo" || { rm -f "$alvo.tmp"; exit 0; }
+        "PNG:$alvo.$$.tmp" 2>/dev/null && mv "$alvo.$$.tmp" "$alvo" || { rm -f "$alvo.$$.tmp"; exit 0; }
     fi
 
     # cor media da capa, escurecida como no painel (player-panel.py, tinge_card)
     cor="$capa.cor"
-    [ -s "$cor" ] || magick "$capa" -scale '1x1!' \
+    [ -s "$cor" ] || { magick "$capa" -scale '1x1!' \
       -format '%[fx:int(255*r*0.38)],%[fx:int(255*g*0.38)],%[fx:int(255*b*0.38)]' \
-      info: > "$cor" 2>/dev/null
+      info: > "$cor.$$.tmp" 2>/dev/null && mv "$cor.$$.tmp" "$cor" || rm -f "$cor.$$.tmp"; }
 
     # o modulo image#art (art.sh) mostra o PNG pronto; nao depende de recarregar CSS
     printf '%s' "$alvo" > "$ART_DIR/pronto"
@@ -96,9 +110,7 @@ anel() {
     else
       : > "$ART_CSS"
     fi
-    ls -1t "$ART_DIR"/*.png 2>/dev/null | tail -n +4 | xargs -r rm -f
-    ls -1t "$ART_DIR"/*.jpg 2>/dev/null | tail -n +3 | xargs -r rm -f
-    ls -1t "$ART_DIR"/*.cor 2>/dev/null | tail -n +3 | xargs -r rm -f
+    poda png 4; poda jpg 3; poda cor 3
     touch "$STYLE"
   ) &
 }
@@ -114,6 +126,13 @@ anel_limpa() {
 # --- estado, lido uma vez por execucao ---
 status=''; pos=0; dur=0; tooltip=''
 
+# so escreve quando o valor muda (roda a cada 1s, em 3 instancias)
+grava_estado() {
+  atual_estado=''
+  { read -r atual_estado < "$ART_DIR/state"; } 2>/dev/null
+  [ "$atual_estado" = "$1" ] || echo "$1" > "$ART_DIR/state"
+}
+
 atualiza_estado() {
   # mesmo formato do relógio que a barra tinha antes
   relogio=$(LC_ALL=C date +'%H:%M - %A, %b %d' | tr A-Z a-z)
@@ -124,21 +143,26 @@ atualiza_estado() {
     -e 's/Friday/sexta-feira/'     -e 's/Saturday/sabado/' \
     -e 's/Sunday/domingo/')
 
+  # separador \037 (unit separator): nao aparece em titulo/artista, ao contrario de '|'
+  US=$(printf '\037')
   dados=$(playerctl --player="$PLAYER" metadata \
-    --format '{{status}}|{{title}}|{{artist}}|{{album}}|{{position}}|{{mpris:length}}|{{mpris:artUrl}}' 2>/dev/null)
+    --format "{{status}}${US}{{title}}${US}{{artist}}${US}{{album}}${US}{{position}}${US}{{mpris:length}}${US}{{mpris:artUrl}}" 2>/dev/null)
   # um so parse em vez de um "cut" por campo (o script roda a cada 1s)
-  IFS='|' read -r status titulo artista album pos_us dur_us art_url <<EOF
+  IFS=$US read -r status titulo artista album pos_us dur_us art_url <<EOF
 $dados
 EOF
+  # so digitos entram na aritmetica (campo vazio ou texto vira 0)
+  case "$pos_us" in ''|*[!0-9]*) pos_us=0 ;; esac
+  case "$dur_us" in ''|*[!0-9]*) dur_us=0 ;; esac
 
   if [ "$status" != "Playing" ] && [ "$status" != "Paused" ]; then
-    echo off > "$ART_DIR/state"
+    grava_estado off
     anel_limpa
     tooltip="<b>$dia</b>"
     return
   fi
 
-  echo on > "$ART_DIR/state"
+  grava_estado on
 
   pos=$(( ${pos_us:-0} / 1000000 ))
   dur=$(( ${dur_us:-0} / 1000000 ))

@@ -28,6 +28,7 @@ PONTE = 0            # sem folga entre barra e painel: nao ha buraco no caminho
 INTERVALO = 0.06     # ~16 leituras por segundo
 CARENCIA_ABRIR = 0.18   # tempo parado sobre a ilha antes de abrir
 CARENCIA_FECHAR = 0.2   # tempo fora da zona antes de fechar
+REVARRE = 5.0        # intervalo para reler a geometria dos monitores
 
 
 def hypr_socket_path():
@@ -70,7 +71,13 @@ def monitores(sock_path):
     import json
 
     try:
-        return json.loads(hypr("j/monitors", sock_path))
+        mons = json.loads(hypr("j/monitors", sock_path))
+        # cursorpos vem em coordenadas lógicas; monitor com escala (notebook 1.25)
+        # tem largura/altura físicas maiores que a área que ocupa
+        for m in mons:
+            m["width"] = round(m["width"] / m["scale"])
+            m["height"] = round(m["height"] / m["scale"])
+        return mons
     except Exception:
         return []
 
@@ -84,14 +91,10 @@ def main():
         print("HYPRLAND_INSTANCE_SIGNATURE ausente", file=sys.stderr)
         return 1
 
+    # A geometria muda com hotplug/dock/reload: relê a cada REVARRE s e quando o
+    # cursor cai fora de todo monitor conhecido. Lista vazia nao encerra: espera.
     mons = monitores(sock_path)
-    if not mons:
-        return 1
-    # cursorpos vem em coordenadas lógicas; monitor com escala (notebook 1.25)
-    # tem largura/altura físicas maiores que a área que ocupa
-    for m in mons:
-        m["width"] = round(m["width"] / m["scale"])
-        m["height"] = round(m["height"] / m["scale"])
+    ultima_leitura = time.monotonic()
 
     aberto = False
     desde_dentro = None
@@ -105,13 +108,23 @@ def main():
             continue
         x, y = pos
 
+        def sob_cursor():
+            return next(
+                (m for m in mons
+                 if m["x"] <= x < m["x"] + m["width"]
+                 and m["y"] <= y < m["y"] + m["height"]),
+                None,
+            )
+
         # Monitor sob o cursor.
-        mon = next(
-            (m for m in mons
-             if m["x"] <= x < m["x"] + m["width"]
-             and m["y"] <= y < m["y"] + m["height"]),
-            None,
-        )
+        mon = sob_cursor()
+        agora = time.monotonic()
+        # fora de qualquer monitor: relê, mas no maximo 1x por segundo
+        limite = REVARRE if mon else 1.0
+        if agora - ultima_leitura >= limite:
+            mons = monitores(sock_path) or mons
+            ultima_leitura = agora
+            mon = sob_cursor()
         if mon is None:
             continue
 

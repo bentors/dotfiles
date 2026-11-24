@@ -25,31 +25,31 @@
         "modules": ["custom/eq1", "custom/eq2", "custom/eq3", "custom/eq4", "custom/eq5", "custom/island", "image#art"]
     },
     "custom/eq1": {
-        "exec": "tail -n0 -F ${XDG_RUNTIME_DIR}/waybar-eq/1 2>/dev/null",
+        "exec": "exec tail -n0 -F \"${XDG_RUNTIME_DIR:-/tmp}/waybar-eq/1\" 2>/dev/null",
         "return-type": "json",
         "escape": false,
         "on-click": "~/.config/waybar/scripts/player-panel-toggle.sh abrir"
     },
     "custom/eq2": {
-        "exec": "tail -n0 -F ${XDG_RUNTIME_DIR}/waybar-eq/2 2>/dev/null",
+        "exec": "exec tail -n0 -F \"${XDG_RUNTIME_DIR:-/tmp}/waybar-eq/2\" 2>/dev/null",
         "return-type": "json",
         "escape": false,
         "on-click": "~/.config/waybar/scripts/player-panel-toggle.sh abrir"
     },
     "custom/eq3": {
-        "exec": "tail -n0 -F ${XDG_RUNTIME_DIR}/waybar-eq/3 2>/dev/null",
+        "exec": "exec tail -n0 -F \"${XDG_RUNTIME_DIR:-/tmp}/waybar-eq/3\" 2>/dev/null",
         "return-type": "json",
         "escape": false,
         "on-click": "~/.config/waybar/scripts/player-panel-toggle.sh abrir"
     },
     "custom/eq4": {
-        "exec": "tail -n0 -F ${XDG_RUNTIME_DIR}/waybar-eq/4 2>/dev/null",
+        "exec": "exec tail -n0 -F \"${XDG_RUNTIME_DIR:-/tmp}/waybar-eq/4\" 2>/dev/null",
         "return-type": "json",
         "escape": false,
         "on-click": "~/.config/waybar/scripts/player-panel-toggle.sh abrir"
     },
     "custom/eq5": {
-        "exec": "tail -n0 -F ${XDG_RUNTIME_DIR}/waybar-eq/5 2>/dev/null",
+        "exec": "exec tail -n0 -F \"${XDG_RUNTIME_DIR:-/tmp}/waybar-eq/5\" 2>/dev/null",
         "return-type": "json",
         "escape": false,
         "on-click": "~/.config/waybar/scripts/player-panel-toggle.sh abrir"

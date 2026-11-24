@@ -15,8 +15,18 @@ PAINEL="$HOME/.config/waybar/scripts/player-panel.py"
 
 MODO=${1:-alternar}
 
+# PID do painel, so se o processo existe E e o player-panel.py: apos um SIGKILL o
+# pidfile fica velho e o PID pode ter sido reaproveitado por outro processo.
+pid_painel() {
+  pid=$(cat "$PIDFILE" 2>/dev/null)
+  case "$pid" in ''|*[!0-9]*) return 1 ;; esac
+  kill -0 "$pid" 2>/dev/null || return 1
+  tr '\0' ' ' < "/proc/$pid/cmdline" 2>/dev/null | grep -q 'player-panel\.py' || return 1
+  printf '%s' "$pid"
+}
+
 vivo() {
-  [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE" 2>/dev/null)" 2>/dev/null
+  pid_painel >/dev/null
 }
 
 visivel() {
@@ -38,7 +48,9 @@ for m in ms:
     if m['x'] <= cx < m['x'] + w and m['y'] <= cy < m['y'] + h:
         break
 else:
-    m = next(m for m in ms if m.get('focused'))
+    m = next((m for m in ms if m.get('focused')), None)
+    if m is None:
+        sys.exit(0)  # sem saida: o shell cai nos padroes (0 / 1920)
 print(m['x'], int(m['width'] / m['scale']), m['y'])
 " "$(hyprctl cursorpos)")
     ALVO_X=$(( ${1:-0} + (${2:-1920} - LARGURA) / 2 ))
@@ -71,12 +83,12 @@ sobe_residente() {
 
 abrir() {
   vivo || sobe_residente || exit 1
-  kill -USR2 "$(cat "$PIDFILE")" 2>/dev/null
+  kill -USR2 "$(pid_painel)" 2>/dev/null
   posiciona "$1" "$2"
 }
 
 fechar() {
-  vivo && kill -USR1 "$(cat "$PIDFILE")" 2>/dev/null
+  pid=$(pid_painel) && kill -USR1 "$pid" 2>/dev/null
 }
 
 case "$MODO" in
