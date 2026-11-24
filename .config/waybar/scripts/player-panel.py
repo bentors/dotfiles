@@ -745,13 +745,16 @@ class Panel(Gtk.ApplicationWindow):
         destino = ART_DIR / nome
         if not destino.exists():
             ART_DIR.mkdir(parents=True, exist_ok=True)
+            # o island.sh le o mesmo arquivo: baixa num temporario e troca de uma vez
+            tmp = destino.with_name(f"{nome}.{os.getpid()}.tmp")
             try:
                 with urllib.request.urlopen(url, timeout=6) as r, open(
-                    destino, "wb"
+                    tmp, "wb"
                 ) as f:
                     shutil.copyfileobj(r, f)
+                os.replace(tmp, destino)
             except Exception:
-                destino.unlink(missing_ok=True)
+                tmp.unlink(missing_ok=True)
                 return None
         return str(destino)
 
@@ -795,6 +798,13 @@ class Panel(Gtk.ApplicationWindow):
             self.copiar.set_sensitive(False)
             self.tocando = False
             self.play.area.queue_draw()
+            # limpa o que sobrou da faixa anterior
+            self.duration = 0
+            self.progress.set_value(0)
+            self.elapsed.set_text("0:00")
+            self.remaining.set_text("-0:00")
+            self.art_key = None
+            self.art.set_filename(None)
             return False
 
         (status, titulo, artista, album, pos_us, dur_us, _art,
