@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# Tampa do notebook: fechada desliga o painel interno, aberta devolve o layout
+# do monitors.conf (fonte única da posição/escala, por isso o reload).
+# Chamado pelo switch da tampa e por um `exec =` (roda a cada reload e no boot).
+#
+# Teste sem tocar no Hyprland: LID_DRY_RUN=1 (imprime o comando em vez de rodar),
+# LID_STATE_FILE=<arquivo de estado da tampa>, LID_MONITORS_JSON=<json de `hyprctl monitors all -j`>.
+
+set -euo pipefail
+
+run() {
+    if [ -n "${LID_DRY_RUN:-}" ]; then echo "hyprctl $*"; else hyprctl "$@"; fi
+}
+
+state_file=${LID_STATE_FILE:-$(ls /proc/acpi/button/lid/*/state 2>/dev/null | head -1 || true)}
+[ -r "${state_file:-}" ] || exit 0   # sem tampa: desktop
+lid=$(awk '{print $2}' "$state_file")
+
+if [ -n "${LID_MONITORS_JSON:-}" ]; then
+    json=$(< "$LID_MONITORS_JSON")
+else
+    json=$(hyprctl monitors all -j)
+fi
+
+panel=$(jq -r '[.[] | select(.name | test("^(eDP|LVDS)"))][0].name // empty' <<< "$json")
+[ -n "$panel" ] || exit 0
+
+disabled=$(jq -r --arg p "$panel" '.[] | select(.name == $p) | .disabled' <<< "$json")
+others=$(jq -r --arg p "$panel" '[.[] | select(.name != $p and .disabled == false)] | length' <<< "$json")
+
+if [ "$lid" = closed ]; then
+    # nunca fica sem nenhuma saída
+    if [ "$disabled" = false ] && [ "$others" -gt 0 ]; then
+        run keyword monitor "$panel, disable"
+    fi
+elif [ "$disabled" = true ]; then
+    # Sem loop: o exec roda DEPOIS do reload e o reload reabilita o painel, então
+    # a segunda passada cai no no-op (tampa aberta + painel ativo). A trava abaixo
+    # cobre o caso do monitors.conf desativar o painel de propósito (senão reload infinito).
+    stamp=${LID_STAMP:-${XDG_RUNTIME_DIR:-/tmp}/hypr-lid-reload}
+    now=$(date +%s)
+    last=$(stat -c %Y "$stamp" 2>/dev/null || echo 0)
+    if [ $((now - last)) -ge 10 ]; then
+        [ -n "${LID_DRY_RUN:-}" ] || touch "$stamp"
+        run reload
+    fi
+fi
