@@ -807,6 +807,7 @@ class Panel(Gtk.ApplicationWindow):
             self.remaining.set_text("-0:00")
             self.art_key = None
             self.art.set_filename(None)
+            self.cor_css.load_from_data(b"")
             return False
 
         (status, titulo, artista, album, pos_us, dur_us, _art,
@@ -851,6 +852,11 @@ class Panel(Gtk.ApplicationWindow):
             self.progress.set_value(pos / self.duration * 1000)
             self.elapsed.set_text(mmss(pos))
             self.remaining.set_text("-" + mmss(self.duration - pos))
+        else:
+            # anuncio / item sem duracao: nao deixa o progresso da faixa anterior
+            self.progress.set_value(0)
+            self.elapsed.set_text("0:00")
+            self.remaining.set_text("-0:00")
 
         m = re.search(r"([\d.]+)", vol)
         if m and not self.volume.has_focus():
