@@ -55,17 +55,22 @@ anel() {
   alvo="$ART_DIR/$hash-$passo.png"
 
   [ "$alvo" = "$(cat "$ART_DIR/atual" 2>/dev/null)" ] && [ -s "$ART_DIR/pronto" ] && return
-  [ -e "$ART_DIR/lock" ] && return
+  # lock atomico (mkdir) em XDG_RUNTIME_DIR: some no logout/reboot, entao um
+  # SIGKILL no meio do curl/magick nao trava a capa para sempre. As 3 instancias
+  # disputam; lock com mais de 1 min e tratado como abandonado.
+  lock="${XDG_RUNTIME_DIR:-/tmp}/waybar-island-art.lock"
+  [ -n "$(find "$lock" -maxdepth 0 -mmin +1 2>/dev/null)" ] && rmdir "$lock" 2>/dev/null
+  mkdir "$lock" 2>/dev/null || return
 
   printf '%s' "$alvo" > "$ART_DIR/atual"
   (
-    : > "$ART_DIR/lock"
-    trap 'rm -f "$ART_DIR/lock"' EXIT
+    trap 'rmdir "$lock"' EXIT
 
+    # temporarios por processo ($$) + mv: arquivo meio escrito nunca parece pronto
     capa="$ART_DIR/$hash.jpg"
     if [ ! -s "$capa" ]; then
-      curl -sfL --max-time 6 -o "$capa.tmp" "$url" && mv "$capa.tmp" "$capa" \
-        || { rm -f "$capa.tmp"; exit 0; }
+      curl -sfL --max-time 6 -o "$capa.$$.tmp" "$url" && mv "$capa.$$.tmp" "$capa" \
+        || { rm -f "$capa.$$.tmp"; exit 0; }
     fi
 
     if [ ! -s "$alvo" ]; then
@@ -78,14 +83,14 @@ anel() {
         -gravity center -compose over -composite \
         -stroke "$ANEL_TRILHA" -strokewidth 3 -fill none -draw "ellipse 22,22 19,19 0,360" \
         -stroke "$ACENTO" -strokewidth 3 -fill none -draw "ellipse 22,22 19,19 -90,$fim" \
-        "PNG:$alvo.tmp" 2>/dev/null && mv "$alvo.tmp" "$alvo" || { rm -f "$alvo.tmp"; exit 0; }
+        "PNG:$alvo.$$.tmp" 2>/dev/null && mv "$alvo.$$.tmp" "$alvo" || { rm -f "$alvo.$$.tmp"; exit 0; }
     fi
 
     # cor media da capa, escurecida como no painel (player-panel.py, tinge_card)
     cor="$capa.cor"
-    [ -s "$cor" ] || magick "$capa" -scale '1x1!' \
+    [ -s "$cor" ] || { magick "$capa" -scale '1x1!' \
       -format '%[fx:int(255*r*0.38)],%[fx:int(255*g*0.38)],%[fx:int(255*b*0.38)]' \
-      info: > "$cor" 2>/dev/null
+      info: > "$cor.$$.tmp" 2>/dev/null && mv "$cor.$$.tmp" "$cor" || rm -f "$cor.$$.tmp"; }
 
     # o modulo image#art (art.sh) mostra o PNG pronto; nao depende de recarregar CSS
     printf '%s' "$alvo" > "$ART_DIR/pronto"
