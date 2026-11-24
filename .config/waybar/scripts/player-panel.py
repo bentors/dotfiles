@@ -765,14 +765,21 @@ class Panel(Gtk.ApplicationWindow):
 
     def _coleta(self):
         try:
+            # separador \x1f: '|' pode aparecer no titulo e deslocaria os campos
+            sep = "\x1f"
             dados = playerctl(
                 "metadata",
                 "--format",
-                "{{status}}|{{title}}|{{artist}}|{{album}}|{{position}}"
-                "|{{mpris:length}}|{{mpris:artUrl}}|{{xesam:url}}"
-                "|{{shuffle}}|{{loop}}",
+                sep.join(
+                    "{{%s}}" % c
+                    for c in (
+                        "status", "title", "artist", "album", "position",
+                        "mpris:length", "mpris:artUrl", "xesam:url",
+                        "shuffle", "loop",
+                    )
+                ),
             )
-            campos = dados.split("|") if dados else []
+            campos = dados.split(sep) if dados else []
             capa = self.baixa_capa(campos[6]) if len(campos) >= 7 else None
             vol = run(["wpctl", "get-volume", "@DEFAULT_AUDIO_SINK@"])
         except Exception:
