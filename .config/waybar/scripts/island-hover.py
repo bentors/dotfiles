@@ -105,6 +105,10 @@ def main():
         time.sleep(INTERVALO)
         pos = cursor(sock_path)
         if pos is None:
+            # Hyprland reiniciou: o socket antigo sumiu e este processo e orfao
+            if not os.path.exists(sock_path):
+                print("socket do Hyprland sumiu", file=sys.stderr)
+                return 1
             continue
         x, y = pos
 
