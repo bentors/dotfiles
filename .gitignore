@@ -11,6 +11,7 @@ __pycache__/
 !.claude/CLAUDE.md
 !.claude/settings.json
 !.claude/statusline.sh
+!.claude/agents/
 !.claude/skills/
 .claude/skills/*
 !.claude/skills/git-workflow/
