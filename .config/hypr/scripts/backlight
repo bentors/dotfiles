@@ -4,6 +4,7 @@
 
 set -euo pipefail
 
+# só o fallback sysfs usa DEVICE; o brightnessctl escolhe o dispositivo sozinho (-c backlight)
 DEVICE="intel_backlight"
 STEP=5
 
@@ -29,13 +30,17 @@ sysfs_set() {
 }
 
 if command -v brightnessctl >/dev/null 2>&1; then
+    # -c backlight: nunca mexe em LEDs; sem backlight (desktop) sai quieto
+    bctl() { brightnessctl -c backlight "$@"; }
+    bctl -m >/dev/null 2>&1 || exit 0
     case "${1:-}" in
-        --inc) brightnessctl -q set "${STEP}%+" ;;
-        --dec) brightnessctl -q set "${STEP}%-" ;;
-        --get) brightnessctl -m | cut -d, -f4 | tr -d '%'; exit 0 ;;
+        # -n (sem valor = mínimo 1; "-n 1" vira comando): valor mínimo, a tela nunca apaga de vez
+        --inc) bctl -q -n set "${STEP}%+" ;;
+        --dec) bctl -q -n set "${STEP}%-" ;;
+        --get) bctl -m | cut -d, -f4 | tr -d '%'; exit 0 ;;
         *)     echo "usage: ${0##*/} --inc | --dec | --get" >&2; exit 1 ;;
     esac
-    notify "$(brightnessctl -m | cut -d, -f4 | tr -d '%')"
+    notify "$(bctl -m | cut -d, -f4 | tr -d '%')"
     exit 0
 fi
 
