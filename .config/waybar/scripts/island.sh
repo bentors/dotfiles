@@ -3,6 +3,11 @@
 # O equalizador saiu daqui: agora sao 5 modulos proprios (custom/eq1..eq5)
 # alimentados pelo eq-driver.sh. Este script voltou a ser disparo unico.
 
+# 3 barras = 3 instancias por segundo com a mesma saida: reaproveita o JSON
+# gerado no segundo corrente (a instancia que calcula tambem roda o job do anel)
+CACHE="${XDG_RUNTIME_DIR:-/tmp}/waybar-island.json"
+[ "$(stat -c %Y "$CACHE" 2>/dev/null)" = "$(date +%s)" ] && exec cat "$CACHE"
+
 PLAYER=spotify
 ACENTO='#ffffff'
 FRACO='#71717a'
@@ -209,5 +214,7 @@ case "$status" in
   *)       classe=idle ;;
 esac
 
-printf '{"text":"%s","tooltip":"%s","class":"%s"}\n' \
-  "$(json "$relogio")" "$(json "$tooltip")" "$classe"
+saida=$(printf '{"text":"%s","tooltip":"%s","class":"%s"}' \
+  "$(json "$relogio")" "$(json "$tooltip")" "$classe")
+printf '%s\n' "$saida" > "$CACHE.$$.tmp" && mv -f "$CACHE.$$.tmp" "$CACHE"
+printf '%s\n' "$saida"
