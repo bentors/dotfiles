@@ -92,8 +92,10 @@ def fullscreen_ativo(mon, sock_path):
         atual = next(m for m in json.loads(hypr("j/monitors", sock_path))
                      if m["name"] == mon["name"])
         ws_id = atual["activeWorkspace"]["id"]
-        wss = json.loads(hypr("j/workspaces", sock_path))
-        return any(w["id"] == ws_id and w.get("hasfullscreen") for w in wss)
+        # fullscreen 2 = tela cheia de verdade; 1 = maximizado (Super+F), com barra
+        clientes = json.loads(hypr("j/clients", sock_path))
+        return any(c["workspace"]["id"] == ws_id and c.get("fullscreen") == 2
+                   for c in clientes)
     except Exception:
         return False  # sem resposta: abre como antes
 
@@ -117,6 +119,9 @@ def main():
     desde_fora = None
     painel_x = 0
     aberto_desde = ultima_checagem = 0.0
+    # fechado por fora (Esc, Super+C) ou bloqueado (tela cheia): so reabre
+    # depois que o cursor sair da zona e voltar
+    dispensado = False
 
     while True:
         time.sleep(INTERVALO)
@@ -177,11 +182,13 @@ def main():
                 # resposta vazia = erro de IPC: mantem o palpite atual
                 if clientes and '"dev.local.playerpanel"' not in clientes:
                     aberto = False
-            if not aberto:
+                    dispensado = True
+            if not aberto and not dispensado:
                 desde_dentro = desde_dentro or agora
                 if agora - desde_dentro >= CARENCIA_ABRIR:
                     if fullscreen_ativo(mon, sock_path):
                         desde_dentro = None
+                        dispensado = True
                         continue
                     painel_x = alvo_x
                     subprocess.Popen(
@@ -194,6 +201,7 @@ def main():
                     desde_dentro = None
         else:
             desde_dentro = None
+            dispensado = False
             if aberto:
                 desde_fora = desde_fora or agora
                 if agora - desde_fora >= CARENCIA_FECHAR:
