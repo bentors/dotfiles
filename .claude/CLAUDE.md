@@ -19,22 +19,18 @@
   - `test-driven-development` when changing behavior in a project with tests;
   - `verification-before-completion` before claiming anything is done.
   Trivial questions, small edits and config are done directly, without process skills.
-- `run` to check UI/app changes in the real app; `claude-api` for LLM/Anthropic code.
-- `code-review`: default level `medium`. Use `high` only for large or risky PRs (auth, migrations, payments, infra) or when I ask; never `max`/`ultra` unless I ask.
-- Worktrees (EnterWorktree) only when I ask.
+- `run` to check UI/app changes in the real app; `frontend-design` for new UI; `claude-api` for LLM/Anthropic code.
+- Worktrees (`using-git-worktrees`, EnterWorktree) only when I ask.
 
 ## Delegation
 - Do trivial work directly.
-- Use the custom agents in `~/.claude/agents` for delegated work; they pin model, tools, rules and report format:
+- Prefer the custom agents in `~/.claude/agents`, which pin model, tools, rules and report format:
   - `implementer` (Sonnet): implementation and fixes from a brief;
   - `test-runner` (Haiku): run tests/lint/build, return only failures;
   - `code-searcher` (Haiku): read-only lookups and flow tracing;
   - `reviewer` (Opus): read-only final review before push/PR and of delegated work.
-  With these, a brief only needs the task, relevant files and acceptance criteria.
-- `general-purpose` (or omitting `subagent_type`) is not allowed when one of the custom agents fits. Search/read → `code-searcher`; code change → `implementer`; tests/build → `test-runner`; review → `reviewer`. Other built-ins only for work no custom agent covers, always with an explicit model (Haiku or Sonnet; Opus only for planning/design).
-- Never use `subagent_type: "fork"`: a fork inherits the whole conversation and always runs on Opus. Use a fresh custom agent with a short brief instead.
-- Don't spawn a subagent for what takes a few tool calls inline; each spawn re-sends a large system prompt.
-- Multi-task plans: execute with subagents, model per role (see Models). In `subagent-driven-development`: implementer role → `implementer`; per-task review → `general-purpose` on Sonnet (the one allowed exception); final whole-branch review → `reviewer`.
+  With these, a brief only needs the task, relevant files and acceptance criteria. Use built-ins (Explore, Plan, general-purpose) only when no custom agent fits, and then set the model explicitly.
+- Multi-task plans: execute with subagents, model per role (see Models).
 - Peer sessions (ListAgents + SendMessage) for parallel work outside the current plan (another repo or front); tell peers to do the work themselves, no subagents/workflows.
 - "N agentes disponíveis" = already-running Claude sessions, not spawn capacity.
 - When I am the peer receiving work: do it directly, never spawn subagents.
@@ -43,8 +39,6 @@
 ## Context hygiene
 - When I switch to a task unrelated to the current session, suggest `/clear` before starting.
 - At the end of a milestone (plan step done, bug fixed, feature committed) in a long session, suggest `/compact <focus>` with a concrete focus line I can paste.
-- Every turn re-reads the whole context, so long sessions are the main token cost. Once a session passes ~150k tokens of context, suggest `/compact <focus>` (or `/clear` plus a short handoff) at the next natural break, even mid-task.
-- Don't re-read files or re-run commands whose output is already in context; read only the line ranges you need.
 - Delegate large searches, log/test-output reading and wide codebase sweeps to a subagent (`test-runner` / `code-searcher`) so the raw output stays out of the main context; ask back only the conclusion.
 
 ## Compact instructions

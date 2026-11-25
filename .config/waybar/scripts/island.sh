@@ -9,7 +9,6 @@ FRACO='#71717a'
 
 ART_DIR="$HOME/.cache/waybar/art"
 ART_CSS="$HOME/.config/waybar/art.css"
-STYLE="$HOME/.config/waybar/style.css"
 mkdir -p "$ART_DIR"
 
 pango() {
@@ -109,17 +108,17 @@ anel() {
     # o modulo image#art (art.sh) mostra o PNG pronto; nao depende de recarregar CSS
     printf '%s' "$alvo" > "$ART_DIR/pronto"
 
-    # tinta da ilha: CSS so e relido quando a Waybar recarrega o estilo
-    # (reload_style_on_change nao dispara com o style.css linkado pelo stow)
+    # tinta da ilha: a Waybar observa o art.css via @import do style.css, entao
+    # so regrava quando o conteudo muda (evita recarregar o CSS das barras a toa)
     # window#waybar: mais especifico que o #island do style.css
     # capa muito escura vira ilha quase preta: mantem o fundo padrao do style.css
     if [ -s "$cor" ] && awk -F, '{ exit !($1 >= 40 || $2 >= 40 || $3 >= 40) }' "$cor"; then
-      printf 'window#waybar #island { background-color: rgb(%s); }\n' "$(cat "$cor")" > "$ART_CSS"
+      novo=$(printf 'window#waybar #island { background-color: rgb(%s); }' "$(cat "$cor")")
+      [ "$novo" = "$(cat "$ART_CSS" 2>/dev/null)" ] || printf '%s\n' "$novo" > "$ART_CSS"
     else
-      : > "$ART_CSS"
+      [ -s "$ART_CSS" ] && : > "$ART_CSS"
     fi
     poda png 4; poda jpg 3; poda cor 3
-    touch "$STYLE"
   # stdout/stderr fora: senao o job herda o pipe da Waybar e ela espera o EOF
   ) >/dev/null 2>&1 &
 }
@@ -128,8 +127,7 @@ anel_limpa() {
   [ -s "$ART_DIR/atual" ] || return
   : > "$ART_DIR/atual"
   : > "$ART_DIR/pronto"
-  : > "$ART_CSS"
-  touch "$STYLE"
+  [ -s "$ART_CSS" ] && : > "$ART_CSS"
 }
 
 # --- estado, lido uma vez por execucao ---

@@ -139,7 +139,7 @@ Exit code 0 → merges cleanly. Non-zero → it lists conflicting files. If ther
 - No AI/agent attribution in any commit: `git log origin/main..HEAD --format='%an <%ae>%n%B' | grep -iE 'co-authored-by|claude|generated with|anthropic|copilot|🤖'` must return nothing. All authors must be the user's configured identity.
 - No fixup/WIP commits left unless the user wants them.
 
-**d. Code review of the diff** — run `/code-review medium` on the branch against `origin/main` (`high` only for large or risky changes: auth, migrations, payments, infra; skip it for docs/config-only diffs), and `/security-review` too when the change touches auth, user input, secrets or permissions. Then read `git diff origin/main...HEAD` in full, plus the surrounding code it calls into, looking for:
+**d. Code review of the diff** — run `/code-review high` on the branch against `origin/main`, and `/security-review` too when the change touches auth, user input, secrets or permissions. Then read `git diff origin/main...HEAD` in full, plus the surrounding code it calls into, looking for:
 - logic bugs, unhandled errors, null/undefined paths, off-by-one, race conditions
 - broken callers of changed functions/signatures, missing migrations, changed public APIs (→ needs `!`/`BREAKING CHANGE`)
 - leftover debug code, commented-out code, TODOs added, secrets/credentials, large or generated files
