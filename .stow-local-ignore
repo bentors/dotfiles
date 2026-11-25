@@ -21,4 +21,7 @@ __pycache__
 ^/\.config/waybar/art\.css
 ^/\.config/mimeapps\.list
 ^/\.config/vicinae/settings\.json
+
+# vendored skill bootstrap dropped on purpose (also gitignored)
+^/\.claude/skills/using-superpowers/SKILL\.md
 ^/screenshots
