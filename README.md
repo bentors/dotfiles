@@ -1,16 +1,33 @@
 # dotfiles
 
-Hyprland desktop on Ubuntu with a purple Waybar and a media "dynamic island".
+Hyprland desktop on Ubuntu with a media "dynamic island" on the Waybar, styled after my
+portfolio, [bentorangel.vercel.app](https://bentorangel.vercel.app): Geist Mono everywhere,
+near-black surfaces with thin zinc borders, and a purple accent.
 
-![](https://img.shields.io/badge/WM-Hyprland-8b5cf6) ![](https://img.shields.io/badge/bar-Waybar-8b5cf6)
+![](https://img.shields.io/badge/WM-Hyprland-ac4bff) ![](https://img.shields.io/badge/bar-Waybar-ac4bff) ![](https://img.shields.io/badge/font-Geist_Mono-ac4bff)
 
 ![Desktop: kitty with fastfetch, cava and git log tiled under the Waybar](screenshots/desktop.jpg)
 
 | Spotify panel on the island | hyprlock |
 |---|---|
-| ![Spotify panel opened from the island](screenshots/island.png) | ![hyprlock with the blue to purple input ring](screenshots/lock.jpg) |
+| ![Spotify panel opened from the island](screenshots/island.png) | ![hyprlock with a Geist Mono clock and a purple input ring](screenshots/lock.jpg) |
 | **Wallpaper picker (`Alt+W`)** | **Notification center** |
 | ![rofi thumbnail grid of the wallpaper library](screenshots/rofi.png) | ![swaync with Wi-Fi, Bluetooth, sliders and media controls](screenshots/swaync.png) |
+
+## Look
+
+One palette, taken from the portfolio's CSS, shared by every config:
+
+| Role | Color |
+|---|---|
+| Background / surfaces | `#050505` / `#0a0a0a` / `#0f0f0f` |
+| Borders | `#27272a` (zinc-800), purple at 50% on hover |
+| Text | `#e4e4e7`, dimmed `#a1a1aa` / `#71717a` |
+| Accent | `#ac4bff`, lighter `#c07eff` / `#d9b3ff`, deeper `#8200da` |
+| Secondary accent | `#00d294` (emerald: charging, checks, cava peaks) |
+
+The active window border is a `#d9b3ff → #ac4bff → #8200da` gradient with a faint
+purple glow; Waybar workspaces read `01 02 03 …` like the portfolio's numbered sections.
 
 ## What's inside
 
@@ -19,14 +36,17 @@ Hyprland desktop on Ubuntu with a purple Waybar and a media "dynamic island".
 | `.config/hypr/` | Hyprland, hyprlock and hypridle configs, plus volume/backlight/wallpaper scripts |
 | `.config/waybar/` | Bar config and style, and the dynamic island: clock, equalizer, album art ring |
 | `.config/waybar/scripts/player-panel.py` | GTK4 Spotify panel that opens on hover over the island |
-| `.config/kitty/` | Translucent black terminal |
-| `.config/fastfetch/` | Purple fetch on terminal start |
-| `.config/cava/` | Terminal audio visualizer with the blue to purple gradient |
-| `.config/vicinae/` | Launcher settings (`Super+Space`) |
+| `.config/kitty/` | Translucent near-black terminal with the palette as its ANSI colors |
+| `.config/fastfetch/` | Fetch on terminal start, Ubuntu logo in purple |
+| `.config/cava/` | Terminal audio visualizer with a purple to emerald gradient |
+| `.config/vicinae/` | Launcher settings (`Super+Space`), Geist Mono and the `bento` theme |
+| `.local/share/vicinae/themes/bento.toml` | vicinae theme with the portfolio palette |
 | `.config/wofi/` | App menu style (`$menu` and the bar's launcher button) |
 | `.config/swaync/` | Notification center with Wi-Fi, Bluetooth, volume and media controls |
 | `.config/rofi/wallpaper.rasi` | Thumbnail grid used by `scripts/wallpaper` |
-| `.config/fish/` | Shell prompt, clock on the right, fastfetch greeting |
+| `.config/fish/` | Minimal prompt (path and a purple `❯`), clock on the right, fastfetch greeting |
+| `.config/fontconfig/` | Maps `monospace` to Geist Mono and `sans-serif` to Geist |
+| `.config/gtk-4.0/gtk.css` | libadwaita accent and dark surfaces in the portfolio palette |
 | `.config/mimeapps.list` | Zen Browser as the default for web links and HTML |
 | `.gitconfig` | Git identity, GitHub auth through `gh` |
 | `packages.txt` | apt packages the configs depend on |
@@ -89,10 +109,13 @@ mkdir -p ~/.claude && cp --update=none .claude/settings.json ~/.claude/
 # ln -s desktop-wallpaper.png ~/.config/hypr/wallpaper.png
 # fish as the login shell
 chsh -s "$(command -v fish)"
-# purple accent for GTK/libadwaita apps (dconf, not a file)
+# purple accent and Geist fonts for GTK/libadwaita apps (dconf, not a file)
 gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
 gsettings set org.gnome.desktop.interface gtk-theme 'Yaru-purple-dark'
 gsettings set org.gnome.desktop.interface accent-color 'purple'
+gsettings set org.gnome.desktop.interface font-name 'Geist 11'
+gsettings set org.gnome.desktop.interface document-font-name 'Geist 12'
+gsettings set org.gnome.desktop.interface monospace-font-name 'Geist Mono 11'
 ```
 
 `.stowrc` targets `$HOME`, so the clone can live anywhere, and links files one
@@ -110,6 +133,10 @@ Dependencies available in apt are listed in `packages.txt` (ImageMagick must
 be 7, for `magick`). The rest comes from elsewhere:
 
 - `vicinae` launcher.
+- [Geist and Geist Mono](https://github.com/vercel/geist-font/releases): copy the
+  `Geist/otf` and `GeistMono/otf` files from the release zip into
+  `~/.local/share/fonts/geist/` and run `fc-cache -f`. Running apps (Waybar,
+  swaync, the island panel) only pick up new fonts after a restart, not a reload.
 - Zen Browser, unpacked in `~/.local/opt/zen/`. `mimeapps.list` expects
   `~/.local/share/applications/zen.desktop`, for example (`Exec` needs an
   absolute path: desktop files don't expand `$HOME` or `~`):
