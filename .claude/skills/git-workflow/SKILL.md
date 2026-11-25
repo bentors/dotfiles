@@ -136,7 +136,7 @@ Exit code 0 → merges cleanly. Non-zero → it lists conflicting files. If ther
 
 **c. Commit hygiene**
 - Every commit header in `origin/main..HEAD` is valid Conventional Commits and in English.
-- No AI/agent attribution in any commit: `git log origin/main..HEAD --format='%an <%ae>%n%B' | grep -iE 'co-authored-by|claude|generated with|anthropic|copilot|🤖'` must return nothing. All authors must be the user's configured identity.
+- No AI/agent attribution in any commit: `git log origin/main..HEAD --format='%an <%ae>%n%B' | grep -iE 'co-authored-by:.*(claude|anthropic|copilot)|generated with|noreply@anthropic\.com|🤖'` must return nothing. All authors must be the user's configured identity.
 - No fixup/WIP commits left unless the user wants them.
 
 **d. Code review of the diff** — run `/code-review high` on the branch against `origin/main`, and `/security-review` too when the change touches auth, user input, secrets or permissions. Then read `git diff origin/main...HEAD` in full, plus the surrounding code it calls into, looking for:
