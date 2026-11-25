@@ -36,6 +36,8 @@ for i in 1 2 3 4 5; do
 done
 
 while :; do
+  # Hyprland saiu: encerra (o trap mata o cava)
+  [ -S "${XDG_RUNTIME_DIR:-/tmp}/hypr/${HYPRLAND_INSTANCE_SIGNATURE}/.socket.sock" ] || exit 0
   cava -p "$CONF" > "$PIPE" 2>/dev/null &
   CAVA_PID=$!
 
@@ -57,6 +59,7 @@ while :; do
       # inicio, que estara vazio. Truncar no lugar o uutils tail as vezes nao
       # percebe e a barra congela. Nao ha replay de quadros velhos.
       for i in 1 2 3 4 5; do : > "$DIR/$i.new" && mv -f "$DIR/$i.new" "$DIR/$i"; done
+      [ -S "${XDG_RUNTIME_DIR:-/tmp}/hypr/${HYPRLAND_INSTANCE_SIGNATURE}/.socket.sock" ] || exit 0
       n=0
       p1=; p2=; p3=; p4=; p5=   # arquivo novo e vazio: reescreve o valor atual
     fi
