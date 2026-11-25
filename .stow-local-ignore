@@ -20,4 +20,5 @@ __pycache__
 ^/\.claude/settings\.json
 ^/\.config/waybar/art\.css
 ^/\.config/mimeapps\.list
+^/\.config/vicinae/settings\.json
 ^/screenshots

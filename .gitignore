@@ -31,6 +31,8 @@ __pycache__/
 !.claude/skills/test-driven-development/
 !.claude/skills/using-git-worktrees/
 !.claude/skills/using-superpowers/
+# only references/ is vendored: its SKILL.md is the bootstrap dropped on purpose
+.claude/skills/using-superpowers/SKILL.md
 !.claude/skills/verification-before-completion/
 !.claude/skills/writing-plans/
 !.claude/skills/writing-skills/

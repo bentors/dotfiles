@@ -102,6 +102,7 @@ cp --update=none .config/hypr/monitors.conf.example ~/.config/hypr/monitors.conf
 # runtime-rewritten files are copied, not linked (--update=none never overwrites)
 cp --update=none .config/waybar/art.css ~/.config/waybar/
 cp --update=none .config/mimeapps.list ~/.config/
+mkdir -p ~/.config/vicinae && cp --update=none .config/vicinae/settings.json ~/.config/vicinae/
 mkdir -p ~/.claude && cp --update=none .claude/settings.json ~/.claude/
 # hyprlock background (gitignored); without it hyprlock falls back to a solid color.
 # Pick an image, or reuse the desktop one once scripts/wallpaper has set it:
@@ -120,8 +121,8 @@ gsettings set org.gnome.desktop.interface monospace-font-name 'Geist Mono 11'
 
 `.stowrc` targets `$HOME`, so the clone can live anywhere, and links files one
 by one (`--no-folding`), so app state written next to them stays out of the
-repo. `.stow-local-ignore` skips `.claude/settings.json`, `waybar/art.css` and
-`mimeapps.list`, which tools rewrite at runtime. If a file already exists,
+repo. `.stow-local-ignore` skips `.claude/settings.json`, `waybar/art.css`,
+`mimeapps.list` and `vicinae/settings.json`, which tools rewrite at runtime. If a file already exists,
 `stow` refuses to replace it; move it away (or use `stow --adopt .` and review
 `git diff`). `stow -D .` removes the links.
 
@@ -196,7 +197,10 @@ Credentials, history, memory and machine-specific hooks are never committed.
   `test-runner`, `code-searcher`, `reviewer`). `stow` links them file by file.
 - `.claude/skills/`: `git-workflow` plus the superpowers process skills, vendored
   (MIT, see `SUPERPOWERS-LICENSE`) with the plugin disabled to skip its
-  SessionStart context injection. Refresh by copying them again from upstream.
+  SessionStart context injection. Refresh by copying upstream `skills/` into
+  `~/dotfiles/.claude/skills/` and running `stow .` (new files become links);
+  `using-superpowers/SKILL.md` stays out on purpose (it is gitignored), and new
+  upstream skill folders need a `!` line in `.gitignore`.
 
 Not versioned, reinstalled by their own tools:
 
