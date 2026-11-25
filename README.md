@@ -1,7 +1,7 @@
 # dotfiles
 
 Hyprland desktop on Ubuntu with a media "dynamic island" on the Waybar, styled after my
-portfolio, [bentorangel.vercel.app](https://bentorangel.vercel.app): Geist Mono everywhere,
+portfolio, [bentorangel.vercel.app](https://bentorangel.vercel.app): Geist Mono (Geist for UI text),
 near-black surfaces with thin zinc borders, and a purple accent.
 
 ![](https://img.shields.io/badge/WM-Hyprland-ac4bff) ![](https://img.shields.io/badge/bar-Waybar-ac4bff) ![](https://img.shields.io/badge/font-Geist_Mono-ac4bff)
