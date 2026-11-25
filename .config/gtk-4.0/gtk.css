@@ -1,4 +1,5 @@
-/* Portfolio palette (bentorangel.vercel.app) for libadwaita apps, dark variant only */
+/* Portfolio palette (bentorangel.vercel.app) for libadwaita apps: the accent applies
+   to both variants, the near-black surfaces only to the dark one */
 :root {
   --accent-bg-color: #ac4bff;
   --accent-fg-color: #ffffff;

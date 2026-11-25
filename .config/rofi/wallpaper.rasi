@@ -7,7 +7,7 @@
     fg:        #e4e4e7;
     fg-dim:    #71717a;
     accent:    #ac4bff;
-    border:    #27272a;
+    line:      #27272a;
     font:      "Geist Mono 11";
 
     /* rofi's built-in theme paints widgets white unless these globals are set,
@@ -20,7 +20,7 @@ window {
     transparency:     "real";
     background-color: @bg;
     border:           1px;
-    border-color:     @border;
+    border-color:     @line;
     border-radius:    16px;
     width:            60%;
     padding:          20px;
@@ -36,7 +36,7 @@ inputbar {
     children:         [ prompt, entry ];
     background-color: @bg-alt;
     border:           1px;
-    border-color:     @border;
+    border-color:     @line;
     border-radius:    999px;
     padding:          10px 16px;
     spacing:          12px;
