@@ -5,7 +5,7 @@
 
 PLAYER=spotify
 ACENTO='#ffffff'
-FRACO='#565f89'
+FRACO='#71717a'
 
 ART_DIR="$HOME/.cache/waybar/art"
 ART_CSS="$HOME/.config/waybar/art.css"
@@ -42,7 +42,7 @@ repete() {
 
 # --- capa circular com anel de progresso (composta com ImageMagick) ---
 PASSOS=36
-ANEL_TRILHA='#4a2f87'
+ANEL_TRILHA='#27272a'
 
 # poda EXT N: mantem os N arquivos *.EXT mais recentes (le linha a linha: aguenta espacos)
 poda() {
