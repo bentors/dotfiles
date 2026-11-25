@@ -26,8 +26,8 @@ One palette, taken from the portfolio's CSS, shared by every config:
 | Accent | `#ac4bff`, lighter `#c07eff` / `#d9b3ff`, deeper `#8200da` |
 | Secondary accent | `#00d294` (emerald: charging, checks, cava peaks) |
 
-The active window border is a `#d9b3ff → #ac4bff → #8200da` gradient with a faint
-purple glow; Waybar workspaces read `01 02 03 …` like the portfolio's numbered sections.
+The active window border is a `#d9b3ff → #ac4bff → #8200da` gradient; Waybar
+workspaces read `01 02 03 …` like the portfolio's numbered sections.
 
 ## What's inside
 
