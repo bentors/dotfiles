@@ -1,0 +1,20 @@
+/* Portfolio palette (bentorangel.vercel.app) for libadwaita apps: the accent applies
+   to both variants, the near-black surfaces only to the dark one */
+:root {
+  --accent-bg-color: #ac4bff;
+  --accent-fg-color: #ffffff;
+  --accent-color: #c07eff;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --window-bg-color: #0a0a0a;
+    --view-bg-color: #050505;
+    --headerbar-bg-color: #0a0a0a;
+    --sidebar-bg-color: #0f0f0f;
+    --secondary-sidebar-bg-color: #0a0a0a;
+    --card-bg-color: #0f0f0f;
+    --dialog-bg-color: #0f0f0f;
+    --popover-bg-color: #0f0f0f;
+    --border-color: #27272a;
+  }
+}

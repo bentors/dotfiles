@@ -1,40 +1,51 @@
 @import "art.css";
 
 * {
-    font-family: "Ubuntu Sans Mono", "FontAwesome";
+    font-family: "Geist Mono", "FontAwesome";
     font-size: 14px;
     min-height: 0;
 }
 
 window#waybar {
     background: transparent;
-    color: #ffffff;
+    color: #e4e4e7;
 }
 
 /* cada módulo é uma "pílula" separada */
 #custom-menu, #workspaces, #island, #tray, #cpu, #memory, #network, #bluetooth,
 #custom-browser, #custom-spotify, #custom-terminal, #custom-settings, #battery, #custom-quick {
-    background: #3b2470;
+    background: #0a0a0a;
+    border: 1px solid #27272a;
     border-radius: 999px;
     padding: 0 10px;
     margin: 0 3px;
+    color: #e4e4e7;
+}
+
+#custom-browser:hover, #custom-spotify:hover, #custom-terminal:hover, #custom-settings:hover,
+#custom-quick:hover, #network:hover, #bluetooth:hover, #battery:hover {
+    border-color: alpha(#ac4bff, 0.5);
+    color: #d9b3ff;
 }
 
 /* menu e áreas de trabalho formam uma pílula só */
 #custom-menu {
     margin-right: 0;
     border-radius: 999px 0 0 999px;
+    border-right: none;
     padding-right: 4px;
+    color: #ac4bff;
 }
 
 #workspaces {
     margin-left: 0;
     border-radius: 0 999px 999px 0;
+    border-left: none;
     padding: 0 6px 0 0;
 }
 
 #workspaces button {
-    color: alpha(#ffffff, 0.35);
+    color: #52525b;
     font-size: 11px;
     padding: 0 4px;
     border: none;
@@ -42,64 +53,69 @@ window#waybar {
     box-shadow: none;
 }
 
-#workspaces button.visible { color: #ffffff; }
-#workspaces button.active { color: #ffffff; }
-#workspaces button.urgent { color: #f7768e; }
+#workspaces button:hover { color: #d9b3ff; }
+#workspaces button.visible { color: #a1a1aa; }
+#workspaces button.active { color: #ac4bff; font-weight: bold; }
+#workspaces button.urgent { color: #f87171; }
 
 
-#custom-browser { color: #ffffff; }
-#custom-spotify { color: #ffffff; }
-#custom-terminal, #custom-settings { color: #ffffff; }
+#custom-browser { color: #e4e4e7; }
+#custom-spotify { color: #e4e4e7; }
+#custom-terminal, #custom-settings { color: #e4e4e7; }
 
-#battery { color: #ffffff; }
-#battery.warning { color: #e0af68; }
-#battery.critical { color: #f7768e; }
+#battery { color: #e4e4e7; }
+#battery.warning { color: #fbbf24; }
+#battery.critical { color: #f87171; }
+#battery.charging { color: #00d294; }
 
 
-#custom-quick { color: #ffffff; }
+#custom-quick { color: #e4e4e7; }
 
 /* cada item da bandeja na sua propria pilula */
 #tray { background: transparent; padding: 0; margin: 0; }
 #tray > * {
-    background: #3b2470;
+    background: #0a0a0a;
+    border: 1px solid #27272a;
     border-radius: 999px;
     margin: 0 3px;
 }
 /* o contêiner do item ignora tamanho; quem aceita e o icone dentro dele */
 #tray > * image { min-width: 34px; }
 
-#network { color: #ffffff; }
-#network.disconnected { color: alpha(#ffffff, 0.45); }
-#bluetooth { color: #ffffff; }
-#bluetooth.off, #bluetooth.disabled { color: alpha(#ffffff, 0.45); }
+#network { color: #e4e4e7; }
+#network.disconnected { color: #52525b; }
+#bluetooth { color: #e4e4e7; }
+#bluetooth.off, #bluetooth.disabled { color: #52525b; }
 #tray.empty { background: transparent; padding: 0; margin: 0; }
 
-#cpu, #memory { color: #ffffff; }
+#cpu, #memory { color: #e4e4e7; }
 /* cpu e memoria formam uma pilula so, como menu + areas de trabalho */
 #cpu {
     margin-right: 0;
     border-radius: 999px 0 0 999px;
+    border-right: none;
     padding-right: 6px;
 }
 #memory {
     margin-left: 0;
     border-radius: 0 999px 999px 0;
+    border-left: none;
     padding-left: 6px;
 }
 
 /* ---- dynamic island (adaptada da config do Matheus) ---- */
 #island { padding: 0 6px 0 4px; }
-#island:hover { background: #4a2f87; }
+#island:hover { background: #0f0f0f; border-color: alpha(#ac4bff, 0.5); }
 
 #custom-island {
     padding: 0 12px;
     min-width: 90px;
 }
-#custom-island.paused { color: alpha(#ffffff, 0.45); }
+#custom-island.paused { color: #52525b; }
 
 /* equalizador: 5 barras; a altura vem da classe h0..h7 do eq-driver.sh */
 #custom-eq1, #custom-eq2, #custom-eq3, #custom-eq4, #custom-eq5 {
-    background-color: #ffffff;
+    background-color: #c07eff;
     border-radius: 999px;
     min-width: 4px;
     min-height: 0;

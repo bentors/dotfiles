@@ -9,7 +9,6 @@ fastfetch
 fish
 fonts-font-awesome
 fonts-ubuntu
-fonts-urw-base35
 gh
 gir1.2-adw-1
 gir1.2-gtk-4.0

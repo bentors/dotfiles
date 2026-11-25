@@ -5,7 +5,7 @@
 
 PLAYER=spotify
 ACENTO='#ffffff'
-FRACO='#565f89'
+FRACO='#71717a'
 
 ART_DIR="$HOME/.cache/waybar/art"
 ART_CSS="$HOME/.config/waybar/art.css"
@@ -42,7 +42,7 @@ repete() {
 
 # --- capa circular com anel de progresso (composta com ImageMagick) ---
 PASSOS=36
-ANEL_TRILHA='#4a2f87'
+ANEL_TRILHA='#27272a'
 
 # poda EXT N: mantem os N arquivos *.EXT mais recentes (le linha a linha: aguenta espacos)
 poda() {
@@ -112,7 +112,7 @@ anel() {
     # tinta da ilha: CSS so e relido quando a Waybar recarrega o estilo
     # (reload_style_on_change nao dispara com o style.css linkado pelo stow)
     # window#waybar: mais especifico que o #island do style.css
-    # capa muito escura vira ilha quase preta: mantem o roxo padrao do style.css
+    # capa muito escura vira ilha quase preta: mantem o fundo padrao do style.css
     if [ -s "$cor" ] && awk -F, '{ exit !($1 >= 40 || $2 >= 40 || $3 >= 40) }' "$cor"; then
       printf 'window#waybar #island { background-color: rgb(%s); }\n' "$(cat "$cor")" > "$ART_CSS"
     else

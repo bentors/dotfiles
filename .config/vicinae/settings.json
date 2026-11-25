@@ -10,5 +10,7 @@
 
 {
    "$schema": "https://vicinae.com/schemas/config.json",
-   "tray": { "enabled": false }
+   "tray": { "enabled": false },
+   "font": { "normal": { "family": "Geist Mono" } },
+   "theme": { "dark": { "name": "bento" } }
 }
