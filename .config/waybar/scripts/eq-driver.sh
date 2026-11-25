@@ -46,6 +46,9 @@ while :; do
   while IFS=';' read -r b1 b2 b3 b4 b5 _; do
     # so anexa quando o valor da barra mudou (cava manda 12 quadros/s, ate no silencio)
     b1=${b1:-0}; b2=${b2:-0}; b3=${b3:-0}; b4=${b4:-0}; b5=${b5:-0}
+    # 1x por segundo reescreve mesmo sem mudanca: uma Waybar recem-iniciada le
+    # com tail -n0 e, em silencio, ficaria sem nenhuma linha (barras somem)
+    [ $((n % 12)) -eq 0 ] && { p1=; p2=; p3=; p4=; p5=; }
     [ "$b1" = "$p1" ] || printf '{"text":" ","class":"h%s"}\n' "$b1" >> "$DIR/1"
     [ "$b2" = "$p2" ] || printf '{"text":" ","class":"h%s"}\n' "$b2" >> "$DIR/2"
     [ "$b3" = "$p3" ] || printf '{"text":" ","class":"h%s"}\n' "$b3" >> "$DIR/3"
