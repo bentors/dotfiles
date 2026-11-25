@@ -331,8 +331,8 @@ class Panel(Gtk.ApplicationWindow):
         self.art_key = None
         self.coletando = False
         self.duration = 0
-        self.seeking = False
-        self.volume_held = False
+        self.pendentes = {}
+        self.timers = set()
 
         self.build()
         self.refresh()
@@ -730,15 +730,35 @@ class Panel(Gtk.ApplicationWindow):
         dica.set_text(nome)
         return True
 
+    def envia_depois(self, chave, cmd):
+        """Arrastar o slider dispara dezenas de eventos: guarda so o ultimo
+        valor e manda no maximo 1x a cada 100 ms, sem bloquear a interface."""
+        self.pendentes[chave] = cmd
+        if chave not in self.timers:
+            self.timers.add(chave)
+            GLib.timeout_add(100, self.despacha, chave)
+
+    def despacha(self, chave):
+        self.timers.discard(chave)
+        subprocess.Popen(
+            self.pendentes.pop(chave),
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        )
+        return False
+
     def on_seek(self, _s, _scroll, value):
         if self.duration > 0:
             alvo = max(0, min(self.duration, self.duration * value / 1000))
-            playerctl("position", f"{alvo:.1f}")
+            self.envia_depois(
+                "seek", ["playerctl", f"--player={PLAYER}", "position", f"{alvo:.1f}"]
+            )
         return False
 
     def on_volume(self, _s, _scroll, value):
         value = max(0, min(100, value))
-        run(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", f"{value / 100:.2f}"])
+        self.envia_depois(
+            "volume", ["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", f"{value / 100:.2f}"]
+        )
         return False
 
     # ---------- estado ----------
