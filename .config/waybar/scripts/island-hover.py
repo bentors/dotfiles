@@ -28,6 +28,7 @@ PONTE = 0            # sem folga entre barra e painel: nao ha buraco no caminho
 INTERVALO = 0.06     # ~16 leituras por segundo
 CARENCIA_ABRIR = 0.18   # tempo parado sobre a ilha antes de abrir
 CARENCIA_FECHAR = 0.2   # tempo fora da zona antes de fechar
+CHECA_ABERTO = 1.0   # no maximo 1 checagem/s de que o painel segue aberto
 REVARRE = 5.0        # intervalo para reler a geometria dos monitores
 
 
@@ -115,6 +116,7 @@ def main():
     desde_dentro = None
     desde_fora = None
     painel_x = 0
+    aberto_desde = ultima_checagem = 0.0
 
     while True:
         time.sleep(INTERVALO)
@@ -165,6 +167,16 @@ def main():
 
         if sobre_ilha or sobre_painel:
             desde_fora = None
+            # Esc / Super+C escondem o painel sem avisar este script: com o
+            # cursor sobre a ilha, confere (devagar) se a janela ainda existe.
+            if (aberto and sobre_ilha
+                    and agora - aberto_desde >= CHECA_ABERTO
+                    and agora - ultima_checagem >= CHECA_ABERTO):
+                ultima_checagem = agora
+                clientes = hypr("j/clients", sock_path)
+                # resposta vazia = erro de IPC: mantem o palpite atual
+                if clientes and '"dev.local.playerpanel"' not in clientes:
+                    aberto = False
             if not aberto:
                 desde_dentro = desde_dentro or agora
                 if agora - desde_dentro >= CARENCIA_ABRIR:
@@ -178,6 +190,7 @@ def main():
                         stderr=subprocess.DEVNULL,
                     )
                     aberto = True
+                    aberto_desde = agora
                     desde_dentro = None
         else:
             desde_dentro = None
