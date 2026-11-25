@@ -347,9 +347,6 @@ class Panel(Gtk.ApplicationWindow):
         esc.connect("key-pressed", self.on_key)
         self.add_controller(esc)
 
-        # Fecha ao perder o foco, como um popover. So passa a valer depois que
-        # a janela recebeu foco uma vez: recem-aberta ela ainda nao e ativa e
-        # se fecharia sozinha.
         # A Waybar fecha o painel com SIGUSR1 para a animacao de recolher
         # rodar; SIGTERM mataria a janela de uma vez.
         GLib.unix_signal_add(
@@ -358,24 +355,6 @@ class Panel(Gtk.ApplicationWindow):
         GLib.unix_signal_add(
             GLib.PRIORITY_DEFAULT, signal.SIGUSR2, self.mostra
         )
-
-        self.ja_focou = False
-        # PANEL_NO_AUTOCLOSE=1 mantem o painel aberto (util para depurar)
-        if os.environ.get("PANEL_NO_AUTOCLOSE") != "1" and \
-                os.environ.get("PANEL_HOVER") != "1":
-            self.connect("notify::is-active", self.on_focus)
-
-    def on_focus(self, *_a):
-        if self.is_active():
-            self.ja_focou = True
-            return
-        if self.ja_focou:
-            GLib.timeout_add(150, self.close_if_unfocused)
-
-    def close_if_unfocused(self):
-        if not self.is_active():
-            self.fecha_animado()
-        return False
 
     # ---------- construcao ----------
 
@@ -606,7 +585,6 @@ class Panel(Gtk.ApplicationWindow):
     def esconde(self):
         self.set_visible(False)
         self.fechando = False
-        self.ja_focou = False
 
     def mostra(self, *_a):
         """Abre o painel. O processo ja esta de pe, entao nao ha espera de
