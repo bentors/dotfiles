@@ -31,6 +31,8 @@ git status --short --branch
 git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null   # default branch, usually origin/main
 ```
 
+The commands in this skill write the base as `origin/main` (and `--base main`). When the default branch found above is different (`origin/master`, `origin/develop`), substitute it everywhere.
+
 - If on `main`/`master` (or the default branch), create a branch **before** the first edit. If there are already uncommitted changes on main, move them with `git switch -c <branch>` (changes carry over) — never commit them to main.
 - If already on a feature branch that matches the task, keep using it. If the task is unrelated to the current branch, ask whether to branch off main instead.
 - Start new branches from an up-to-date base when a remote exists: `git fetch origin && git switch -c <branch> --no-track origin/main` (never without `--no-track`, so the branch does not track main). Verify with `git branch -vv` (no upstream).
