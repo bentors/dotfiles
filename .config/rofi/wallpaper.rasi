@@ -7,7 +7,7 @@
     fg:        #c0caf5;
     fg-dim:    #565f89;
     accent:    #7aa2f7;
-    font:      "Ubuntu Sans 11";
+    font:      "Geist Mono 11";
 
     /* rofi's built-in theme paints widgets white unless these globals are set,
        so the grid area stayed light even with @bg on the window. */
