@@ -13,7 +13,6 @@ ACENTO='#ffffff'
 FRACO='#71717a'
 
 ART_DIR="$HOME/.cache/waybar/art"
-ART_CSS="$HOME/.config/waybar/art.css"
 mkdir -p "$ART_DIR"
 
 pango() {
@@ -105,26 +104,10 @@ anel() {
         "PNG:$alvo.$$.tmp" 2>/dev/null && mv "$alvo.$$.tmp" "$alvo" || { rm -f "$alvo.$$.tmp"; exit 0; }
     fi
 
-    # cor media da capa, escurecida como no painel (player-panel.py, tinge_card)
-    cor="$capa.cor"
-    [ -s "$cor" ] || { magick "$capa" -scale '1x1!' \
-      -format '%[fx:int(255*r*0.38)],%[fx:int(255*g*0.38)],%[fx:int(255*b*0.38)]' \
-      info: > "$cor.$$.tmp" 2>/dev/null && mv "$cor.$$.tmp" "$cor" || rm -f "$cor.$$.tmp"; }
-
     # o modulo image#art (art.sh) mostra o PNG pronto; nao depende de recarregar CSS
     printf '%s' "$alvo" > "$ART_DIR/pronto"
-
-    # tinta da ilha: a Waybar observa o art.css via @import do style.css, entao
-    # so regrava quando o conteudo muda (evita recarregar o CSS das barras a toa)
-    # window#waybar: mais especifico que o #island do style.css
-    # capa muito escura vira ilha quase preta: mantem o fundo padrao do style.css
-    if [ -s "$cor" ] && awk -F, '{ exit !($1 >= 40 || $2 >= 40 || $3 >= 40) }' "$cor"; then
-      novo=$(printf 'window#waybar #island { background-color: rgb(%s); }' "$(cat "$cor")")
-      [ "$novo" = "$(cat "$ART_CSS" 2>/dev/null)" ] || printf '%s\n' "$novo" > "$ART_CSS"
-    else
-      [ -s "$ART_CSS" ] && : > "$ART_CSS"
-    fi
-    poda png 4; poda jpg 3; poda cor 3
+    # a ilha fica sempre preta (style.css): nao segue a cor da capa
+    poda png 4; poda jpg 3
   # stdout/stderr fora: senao o job herda o pipe da Waybar e ela espera o EOF
   ) >/dev/null 2>&1 &
 }
@@ -133,7 +116,6 @@ anel_limpa() {
   [ -s "$ART_DIR/atual" ] || return
   : > "$ART_DIR/atual"
   : > "$ART_DIR/pronto"
-  [ -s "$ART_CSS" ] && : > "$ART_CSS"
 }
 
 # --- estado, lido uma vez por execucao ---

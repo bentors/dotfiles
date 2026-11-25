@@ -100,7 +100,6 @@ stow .
 # do this before the first Hyprland login, or `source` shows a config error
 cp --update=none .config/hypr/monitors.conf.example ~/.config/hypr/monitors.conf
 # runtime-rewritten files are copied, not linked (--update=none never overwrites)
-cp --update=none .config/waybar/art.css ~/.config/waybar/
 cp --update=none .config/mimeapps.list ~/.config/
 mkdir -p ~/.config/vicinae && cp --update=none .config/vicinae/settings.json ~/.config/vicinae/
 mkdir -p ~/.claude && cp --update=none .claude/settings.json ~/.claude/
@@ -121,7 +120,7 @@ gsettings set org.gnome.desktop.interface monospace-font-name 'Geist Mono 11'
 
 `.stowrc` targets `$HOME`, so the clone can live anywhere, and links files one
 by one (`--no-folding`), so app state written next to them stays out of the
-repo. `.stow-local-ignore` skips `.claude/settings.json`, `waybar/art.css`,
+repo. `.stow-local-ignore` skips `.claude/settings.json`,
 `mimeapps.list` and `vicinae/settings.json`, which tools rewrite at runtime. If a file already exists,
 `stow` refuses to replace it; move it away (or use `stow --adopt .` and review
 `git diff`). `stow -D .` removes the links.
