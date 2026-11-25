@@ -94,9 +94,16 @@ case ${1-} in
   /*|./*|~/*|*/*)
     src=${1/#\~/$HOME}
     [ -f "$src" ] || { echo "Arquivo nao encontrado: $src" >&2; exit 1; }
-    # já é o arquivo da biblioteca: cp com origem == destino abortaria sob set -e
-    [ "$src" -ef "$LIB/$(basename "$src")" ] || cp -f "$src" "$LIB/$(basename "$src")"
-    apply "$LIB/$(basename "$src")"
+    dst="$LIB/$(basename "$src")"
+    # já é o arquivo da biblioteca (ou idêntico): nada a copiar; cp com origem == destino abortaria sob set -e
+    if [ -e "$dst" ] && ! [ "$src" -ef "$dst" ] && ! cmp -s "$src" "$dst"; then
+      msg="Ja existe outra imagem com o nome $(basename "$src") em $LIB"
+      echo "$msg" >&2
+      command -v notify-send >/dev/null && notify-send -u low "Wallpaper" "$msg" || true
+      exit 1
+    fi
+    [ -e "$dst" ] || cp "$src" "$dst"
+    apply "$dst"
     ;;
   *)
     # caminho relativo de um arquivo existente (ex.: foto.png): importa; senão é nome da biblioteca
