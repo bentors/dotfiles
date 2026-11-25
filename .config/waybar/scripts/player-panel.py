@@ -333,6 +333,8 @@ class Panel(Gtk.ApplicationWindow):
         self.duration = 0
         self.pendentes = {}
         self.timers = set()
+        self.rodando = {}     # ultimo processo por chave: mantem a ordem dos comandos
+        self.ultimo_seek = 0.0
 
         self.build()
         self.refresh()
@@ -717,16 +719,23 @@ class Panel(Gtk.ApplicationWindow):
             GLib.timeout_add(100, self.despacha, chave)
 
     def despacha(self, chave):
+        anterior = self.rodando.get(chave)
+        if anterior and anterior.poll() is None:
+            return True   # o comando anterior ainda roda: tenta de novo em 100 ms
         self.timers.discard(chave)
-        subprocess.Popen(
-            self.pendentes.pop(chave),
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-        )
+        try:
+            self.rodando[chave] = subprocess.Popen(
+                self.pendentes.pop(chave),
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            )
+        except OSError:
+            pass   # playerctl/wpctl ausente: ignora, como run()
         return False
 
     def on_seek(self, _s, _scroll, value):
         if self.duration > 0:
             alvo = max(0, min(self.duration, self.duration * value / 1000))
+            self.ultimo_seek = time.monotonic()
             self.envia_depois(
                 "seek", ["playerctl", f"--player={PLAYER}", "position", f"{alvo:.1f}"]
             )
@@ -853,7 +862,9 @@ class Panel(Gtk.ApplicationWindow):
         except ValueError:
             pos = self.duration = 0
         if self.duration > 0:
-            self.progress.set_value(pos / self.duration * 1000)
+            # logo apos um arraste o player ainda informa a posicao antiga
+            if time.monotonic() - self.ultimo_seek > 0.6:
+                self.progress.set_value(pos / self.duration * 1000)
             self.elapsed.set_text(mmss(pos))
             self.remaining.set_text("-" + mmss(self.duration - pos))
         else:
