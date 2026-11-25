@@ -3,13 +3,16 @@
 # O equalizador saiu daqui: agora sao 5 modulos proprios (custom/eq1..eq5)
 # alimentados pelo eq-driver.sh. Este script voltou a ser disparo unico.
 
+# 3 barras = 3 instancias por segundo com a mesma saida: reaproveita o JSON
+# gerado no segundo corrente (a instancia que calcula tambem roda o job do anel)
+CACHE="${XDG_RUNTIME_DIR:-/tmp}/waybar-island.json"
+[ "$(stat -c %Y "$CACHE" 2>/dev/null)" = "$(date +%s)" ] && exec cat "$CACHE"
+
 PLAYER=spotify
 ACENTO='#ffffff'
 FRACO='#71717a'
 
 ART_DIR="$HOME/.cache/waybar/art"
-ART_CSS="$HOME/.config/waybar/art.css"
-STYLE="$HOME/.config/waybar/style.css"
 mkdir -p "$ART_DIR"
 
 pango() {
@@ -53,10 +56,11 @@ poda() {
 anel() {
   url="$1"; pos="$2"; dur="$3"
   [ -z "$url" ] && { anel_limpa; return; }
-  [ "${dur:-0}" -le 0 ] && return
 
   hash=$(printf '%s' "$url" | md5sum | cut -c1-12)
-  passo=$((pos * PASSOS / dur))
+  # sem duracao (podcast, troca de faixa): capa sem progresso, nao a anterior
+  passo=0
+  [ "${dur:-0}" -gt 0 ] && passo=$((pos * PASSOS / dur))
   [ "$passo" -gt "$PASSOS" ] && passo=$PASSOS
   alvo="$ART_DIR/$hash-$passo.png"
 
@@ -100,26 +104,10 @@ anel() {
         "PNG:$alvo.$$.tmp" 2>/dev/null && mv "$alvo.$$.tmp" "$alvo" || { rm -f "$alvo.$$.tmp"; exit 0; }
     fi
 
-    # cor media da capa, escurecida como no painel (player-panel.py, tinge_card)
-    cor="$capa.cor"
-    [ -s "$cor" ] || { magick "$capa" -scale '1x1!' \
-      -format '%[fx:int(255*r*0.38)],%[fx:int(255*g*0.38)],%[fx:int(255*b*0.38)]' \
-      info: > "$cor.$$.tmp" 2>/dev/null && mv "$cor.$$.tmp" "$cor" || rm -f "$cor.$$.tmp"; }
-
     # o modulo image#art (art.sh) mostra o PNG pronto; nao depende de recarregar CSS
     printf '%s' "$alvo" > "$ART_DIR/pronto"
-
-    # tinta da ilha: CSS so e relido quando a Waybar recarrega o estilo
-    # (reload_style_on_change nao dispara com o style.css linkado pelo stow)
-    # window#waybar: mais especifico que o #island do style.css
-    # capa muito escura vira ilha quase preta: mantem o fundo padrao do style.css
-    if [ -s "$cor" ] && awk -F, '{ exit !($1 >= 40 || $2 >= 40 || $3 >= 40) }' "$cor"; then
-      printf 'window#waybar #island { background-color: rgb(%s); }\n' "$(cat "$cor")" > "$ART_CSS"
-    else
-      : > "$ART_CSS"
-    fi
-    poda png 4; poda jpg 3; poda cor 3
-    touch "$STYLE"
+    # a ilha fica sempre preta (style.css): nao segue a cor da capa
+    poda png 4; poda jpg 3
   # stdout/stderr fora: senao o job herda o pipe da Waybar e ela espera o EOF
   ) >/dev/null 2>&1 &
 }
@@ -128,8 +116,6 @@ anel_limpa() {
   [ -s "$ART_DIR/atual" ] || return
   : > "$ART_DIR/atual"
   : > "$ART_DIR/pronto"
-  : > "$ART_CSS"
-  touch "$STYLE"
 }
 
 # --- estado, lido uma vez por execucao ---
@@ -211,5 +197,7 @@ case "$status" in
   *)       classe=idle ;;
 esac
 
-printf '{"text":"%s","tooltip":"%s","class":"%s"}\n' \
-  "$(json "$relogio")" "$(json "$tooltip")" "$classe"
+saida=$(printf '{"text":"%s","tooltip":"%s","class":"%s"}' \
+  "$(json "$relogio")" "$(json "$tooltip")" "$classe")
+printf '%s\n' "$saida" > "$CACHE.$$.tmp" && mv -f "$CACHE.$$.tmp" "$CACHE"
+printf '%s\n' "$saida"

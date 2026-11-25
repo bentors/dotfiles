@@ -331,8 +331,10 @@ class Panel(Gtk.ApplicationWindow):
         self.art_key = None
         self.coletando = False
         self.duration = 0
-        self.seeking = False
-        self.volume_held = False
+        self.pendentes = {}
+        self.timers = set()
+        self.rodando = {}     # ultimo processo por chave: mantem a ordem dos comandos
+        self.ultimo_seek = 0.0
 
         self.build()
         self.refresh()
@@ -342,12 +344,11 @@ class Panel(Gtk.ApplicationWindow):
         GLib.timeout_add(POLL_MS, lambda: self.get_visible() and self.refresh() or True)
 
         esc = Gtk.EventControllerKey()
+        # captura: senao o botao focado recebe o Espaco antes do play/pause
+        esc.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
         esc.connect("key-pressed", self.on_key)
         self.add_controller(esc)
 
-        # Fecha ao perder o foco, como um popover. So passa a valer depois que
-        # a janela recebeu foco uma vez: recem-aberta ela ainda nao e ativa e
-        # se fecharia sozinha.
         # A Waybar fecha o painel com SIGUSR1 para a animacao de recolher
         # rodar; SIGTERM mataria a janela de uma vez.
         GLib.unix_signal_add(
@@ -356,24 +357,6 @@ class Panel(Gtk.ApplicationWindow):
         GLib.unix_signal_add(
             GLib.PRIORITY_DEFAULT, signal.SIGUSR2, self.mostra
         )
-
-        self.ja_focou = False
-        # PANEL_NO_AUTOCLOSE=1 mantem o painel aberto (util para depurar)
-        if os.environ.get("PANEL_NO_AUTOCLOSE") != "1" and \
-                os.environ.get("PANEL_HOVER") != "1":
-            self.connect("notify::is-active", self.on_focus)
-
-    def on_focus(self, *_a):
-        if self.is_active():
-            self.ja_focou = True
-            return
-        if self.ja_focou:
-            GLib.timeout_add(150, self.close_if_unfocused)
-
-    def close_if_unfocused(self):
-        if not self.is_active():
-            self.fecha_animado()
-        return False
 
     # ---------- construcao ----------
 
@@ -604,7 +587,6 @@ class Panel(Gtk.ApplicationWindow):
     def esconde(self):
         self.set_visible(False)
         self.fechando = False
-        self.ja_focou = False
 
     def mostra(self, *_a):
         """Abre o painel. O processo ja esta de pe, entao nao ha espera de
@@ -728,15 +710,42 @@ class Panel(Gtk.ApplicationWindow):
         dica.set_text(nome)
         return True
 
+    def envia_depois(self, chave, cmd):
+        """Arrastar o slider dispara dezenas de eventos: guarda so o ultimo
+        valor e manda no maximo 1x a cada 100 ms, sem bloquear a interface."""
+        self.pendentes[chave] = cmd
+        if chave not in self.timers:
+            self.timers.add(chave)
+            GLib.timeout_add(100, self.despacha, chave)
+
+    def despacha(self, chave):
+        anterior = self.rodando.get(chave)
+        if anterior and anterior.poll() is None:
+            return True   # o comando anterior ainda roda: tenta de novo em 100 ms
+        self.timers.discard(chave)
+        try:
+            self.rodando[chave] = subprocess.Popen(
+                self.pendentes.pop(chave),
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            )
+        except OSError:
+            pass   # playerctl/wpctl ausente: ignora, como run()
+        return False
+
     def on_seek(self, _s, _scroll, value):
         if self.duration > 0:
             alvo = max(0, min(self.duration, self.duration * value / 1000))
-            playerctl("position", f"{alvo:.1f}")
+            self.ultimo_seek = time.monotonic()
+            self.envia_depois(
+                "seek", ["playerctl", f"--player={PLAYER}", "position", f"{alvo:.1f}"]
+            )
         return False
 
     def on_volume(self, _s, _scroll, value):
         value = max(0, min(100, value))
-        run(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", f"{value / 100:.2f}"])
+        self.envia_depois(
+            "volume", ["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", f"{value / 100:.2f}"]
+        )
         return False
 
     # ---------- estado ----------
@@ -853,7 +862,9 @@ class Panel(Gtk.ApplicationWindow):
         except ValueError:
             pos = self.duration = 0
         if self.duration > 0:
-            self.progress.set_value(pos / self.duration * 1000)
+            # logo apos um arraste o player ainda informa a posicao antiga
+            if time.monotonic() - self.ultimo_seek > 0.6:
+                self.progress.set_value(pos / self.duration * 1000)
             self.elapsed.set_text(mmss(pos))
             self.remaining.set_text("-" + mmss(self.duration - pos))
         else:

@@ -25,7 +25,7 @@ Skip vendored or generated files unless the brief says otherwise; say which you 
 - Security: secrets, injection, auth/permission gaps, unsafe input handling.
 - Tests: changed behavior without tests, or tests that do not exercise the change.
 - Leftovers: debug code, commented-out code, new TODOs, large or generated files.
-- Commits: Conventional Commits in English; no AI attribution (`git log origin/main..HEAD --format='%an%n%B' | grep -iE 'co-authored-by|generated with|🤖'` must be empty); merge conflicts with base.
+- Commits: Conventional Commits in English; no AI attribution (`git log origin/main..HEAD --format='%an <%ae>%n%B' | grep -iE 'co-authored-by:.*(claude|anthropic|copilot)|generated with|noreply@anthropic\.com|🤖'` must be empty); merge conflicts with base.
 - When the project uses Docker, run any checks inside its container.
 
 ## Report

@@ -31,6 +31,8 @@ git status --short --branch
 git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null   # default branch, usually origin/main
 ```
 
+The commands in this skill write the base as `origin/main` (and `--base main`). When the default branch found above is different (`origin/master`, `origin/develop`), substitute it everywhere.
+
 - If on `main`/`master` (or the default branch), create a branch **before** the first edit. If there are already uncommitted changes on main, move them with `git switch -c <branch>` (changes carry over) — never commit them to main.
 - If already on a feature branch that matches the task, keep using it. If the task is unrelated to the current branch, ask whether to branch off main instead.
 - Start new branches from an up-to-date base when a remote exists: `git fetch origin && git switch -c <branch> --no-track origin/main` (never without `--no-track`, so the branch does not track main). Verify with `git branch -vv` (no upstream).
@@ -136,10 +138,10 @@ Exit code 0 → merges cleanly. Non-zero → it lists conflicting files. If ther
 
 **c. Commit hygiene**
 - Every commit header in `origin/main..HEAD` is valid Conventional Commits and in English.
-- No AI/agent attribution in any commit: `git log origin/main..HEAD --format='%an <%ae>%n%B' | grep -iE 'co-authored-by|claude|generated with|anthropic|copilot|🤖'` must return nothing. All authors must be the user's configured identity.
+- No AI/agent attribution in any commit: `git log origin/main..HEAD --format='%an <%ae>%n%B' | grep -iE 'co-authored-by:.*(claude|anthropic|copilot)|generated with|noreply@anthropic\.com|🤖'` must return nothing. All authors must be the user's configured identity.
 - No fixup/WIP commits left unless the user wants them.
 
-**d. Code review of the diff** — run `/code-review medium` on the branch against `origin/main` (`high` only for large or risky changes: auth, migrations, payments, infra; skip it for docs/config-only diffs), and `/security-review` too when the change touches auth, user input, secrets or permissions. Then read `git diff origin/main...HEAD` in full, plus the surrounding code it calls into, looking for:
+**d. Code review of the diff** — run `/code-review high` on the branch against `origin/main`, and `/security-review` too when the change touches auth, user input, secrets or permissions. Then read `git diff origin/main...HEAD` in full, plus the surrounding code it calls into, looking for:
 - logic bugs, unhandled errors, null/undefined paths, off-by-one, race conditions
 - broken callers of changed functions/signatures, missing migrations, changed public APIs (→ needs `!`/`BREAKING CHANGE`)
 - leftover debug code, commented-out code, TODOs added, secrets/credentials, large or generated files

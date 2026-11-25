@@ -1,6 +1,5 @@
 #!/bin/sh
 # Controla o painel de midia.
-#   (sem argumento)   alterna
 #   abrir [x]         abre, opcionalmente numa posicao X
 #   fechar            fecha
 #
@@ -13,7 +12,7 @@ TOPO=0           # a janela comeca no topo: o card sobe ate a barra ao recolher
 PIDFILE="${XDG_RUNTIME_DIR:-/tmp}/player-panel.pid"
 PAINEL="$HOME/.config/waybar/scripts/player-panel.py"
 
-MODO=${1:-alternar}
+MODO=$1
 
 # PID do painel, so se o processo existe E e o player-panel.py: apos um SIGKILL o
 # pidfile fica velho e o PID pode ter sido reaproveitado por outro processo.
@@ -70,8 +69,7 @@ print(m['x'], int(m['width'] / m['scale']), m['y'])
 }
 
 sobe_residente() {
-  # PANEL_HOVER: quem fecha e o vigia de hover, nao a perda de foco.
-  PANEL_HOVER=1 setsid python3 "$PAINEL" >"${XDG_RUNTIME_DIR:-/tmp}/player-panel.log" 2>&1 &
+  setsid python3 "$PAINEL" >"${XDG_RUNTIME_DIR:-/tmp}/player-panel.log" 2>&1 &
   i=0
   while [ "$i" -lt 150 ]; do
     vivo && return 0
@@ -94,5 +92,4 @@ fechar() {
 case "$MODO" in
   abrir)  abrir "$2" "$3" ;;   # o painel ja ignora o sinal se estiver aberto
   fechar) fechar ;;
-  *)      if visivel; then fechar; else abrir "$2"; fi ;;
 esac

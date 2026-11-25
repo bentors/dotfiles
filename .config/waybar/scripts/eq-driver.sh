@@ -36,16 +36,25 @@ for i in 1 2 3 4 5; do
 done
 
 while :; do
+  # Hyprland saiu: encerra (o trap mata o cava)
+  [ -S "${XDG_RUNTIME_DIR:-/tmp}/hypr/${HYPRLAND_INSTANCE_SIGNATURE}/.socket.sock" ] || exit 0
   cava -p "$CONF" > "$PIPE" 2>/dev/null &
   CAVA_PID=$!
 
   n=0
+  p1=; p2=; p3=; p4=; p5=   # ultimo valor escrito por barra; vazio forca a escrita
   while IFS=';' read -r b1 b2 b3 b4 b5 _; do
-    printf '{"text":" ","class":"h%s"}\n' "${b1:-0}" >> "$DIR/1"
-    printf '{"text":" ","class":"h%s"}\n' "${b2:-0}" >> "$DIR/2"
-    printf '{"text":" ","class":"h%s"}\n' "${b3:-0}" >> "$DIR/3"
-    printf '{"text":" ","class":"h%s"}\n' "${b4:-0}" >> "$DIR/4"
-    printf '{"text":" ","class":"h%s"}\n' "${b5:-0}" >> "$DIR/5"
+    # so anexa quando o valor da barra mudou (cava manda 12 quadros/s, ate no silencio)
+    b1=${b1:-0}; b2=${b2:-0}; b3=${b3:-0}; b4=${b4:-0}; b5=${b5:-0}
+    # 1x por segundo reescreve mesmo sem mudanca: uma Waybar recem-iniciada le
+    # com tail -n0 e, em silencio, ficaria sem nenhuma linha (barras somem)
+    [ $((n % 12)) -eq 0 ] && { p1=; p2=; p3=; p4=; p5=; }
+    [ "$b1" = "$p1" ] || printf '{"text":" ","class":"h%s"}\n' "$b1" >> "$DIR/1"
+    [ "$b2" = "$p2" ] || printf '{"text":" ","class":"h%s"}\n' "$b2" >> "$DIR/2"
+    [ "$b3" = "$p3" ] || printf '{"text":" ","class":"h%s"}\n' "$b3" >> "$DIR/3"
+    [ "$b4" = "$p4" ] || printf '{"text":" ","class":"h%s"}\n' "$b4" >> "$DIR/4"
+    [ "$b5" = "$p5" ] || printf '{"text":" ","class":"h%s"}\n' "$b5" >> "$DIR/5"
+    p1=$b1; p2=$b2; p3=$b3; p4=$b4; p5=$b5
 
     n=$((n + 1))
     if [ "$n" -ge "$LIMPA_A_CADA" ]; then
@@ -53,7 +62,9 @@ while :; do
       # inicio, que estara vazio. Truncar no lugar o uutils tail as vezes nao
       # percebe e a barra congela. Nao ha replay de quadros velhos.
       for i in 1 2 3 4 5; do : > "$DIR/$i.new" && mv -f "$DIR/$i.new" "$DIR/$i"; done
+      [ -S "${XDG_RUNTIME_DIR:-/tmp}/hypr/${HYPRLAND_INSTANCE_SIGNATURE}/.socket.sock" ] || exit 0
       n=0
+      p1=; p2=; p3=; p4=; p5=   # arquivo novo e vazio: reescreve o valor atual
     fi
   done < "$PIPE"
 
