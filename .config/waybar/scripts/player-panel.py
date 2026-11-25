@@ -342,6 +342,8 @@ class Panel(Gtk.ApplicationWindow):
         GLib.timeout_add(POLL_MS, lambda: self.get_visible() and self.refresh() or True)
 
         esc = Gtk.EventControllerKey()
+        # captura: senao o botao focado recebe o Espaco antes do play/pause
+        esc.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
         esc.connect("key-pressed", self.on_key)
         self.add_controller(esc)
 
