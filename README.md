@@ -205,7 +205,8 @@ Credentials, history, memory and machine-specific hooks are never committed.
 Not versioned, reinstalled by their own tools:
 
 - Caveman skills (`caveman`, `ultracave`, `megacave`), hooks and MCP:
-  `npm i -g @caveman-ai/cli && caveman setup --agent-native claude`
+  `npm config set prefix ~/.npm-global && npm i -g @caveman-ai/cli && caveman setup --agent-native claude`
+  (the prefix avoids a permission error with apt's npm; see the Node.js note above)
 - claude.ai connectors come back with the login, but `settings.json` sets
   `ENABLE_CLAUDEAI_MCP_SERVERS=false` to keep them out of Claude Code; the
   `github` plugin is disabled too (the `gh` CLI covers it).
