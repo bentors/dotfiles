@@ -87,7 +87,10 @@ def fullscreen_ativo(mon, sock_path):
     import json
 
     try:
-        ws_id = mon["activeWorkspace"]["id"]
+        # lista de monitores lida agora: a de main() pode ter ate REVARRE s
+        atual = next(m for m in json.loads(hypr("j/monitors", sock_path))
+                     if m["name"] == mon["name"])
+        ws_id = atual["activeWorkspace"]["id"]
         wss = json.loads(hypr("j/workspaces", sock_path))
         return any(w["id"] == ws_id and w.get("hasfullscreen") for w in wss)
     except Exception:
