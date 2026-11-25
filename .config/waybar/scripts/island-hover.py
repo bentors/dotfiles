@@ -82,6 +82,18 @@ def monitores(sock_path):
         return []
 
 
+def fullscreen_ativo(mon, sock_path):
+    """True se o workspace ativo do monitor tem janela em tela cheia (barra oculta)."""
+    import json
+
+    try:
+        ws_id = mon["activeWorkspace"]["id"]
+        wss = json.loads(hypr("j/workspaces", sock_path))
+        return any(w["id"] == ws_id and w.get("hasfullscreen") for w in wss)
+    except Exception:
+        return False  # sem resposta: abre como antes
+
+
 def main():
     # Os Popen do toggle nunca recebem wait(); com SIG_IGN o kernel os recolhe
     # sozinho e nao sobram processos <defunct>.
@@ -153,6 +165,9 @@ def main():
             if not aberto:
                 desde_dentro = desde_dentro or agora
                 if agora - desde_dentro >= CARENCIA_ABRIR:
+                    if fullscreen_ativo(mon, sock_path):
+                        desde_dentro = None
+                        continue
                     painel_x = alvo_x
                     subprocess.Popen(
                         [TOGGLE, "abrir", str(alvo_x), str(mon["y"])],
