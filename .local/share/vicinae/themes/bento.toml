@@ -1,0 +1,31 @@
+# Bento - palette from bentorangel.vercel.app
+
+[meta]
+version = 1
+name = "Bento"
+description = "Near-black surfaces, zinc borders, purple accent"
+variant = "dark"
+
+[colors.core]
+background = "#050505"
+foreground = "#e4e4e7"
+secondary_background = "#0a0a0a"
+border = "#27272a"
+accent = "#ac4bff"
+
+[colors.accents]
+blue = "#8b5cf6"
+green = "#00d294"
+magenta = "#c07eff"
+orange = "#fb923c"
+purple = "#ac4bff"
+red = "#f87171"
+yellow = "#fbbf24"
+cyan = "#22d3ee"
+
+[colors.list.item.selection]
+background = "#2a1640"
+secondary_background = "#1a0f26"
+
+[colors.grid.item]
+background = "#0f0f0f"

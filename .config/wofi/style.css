@@ -1,26 +1,30 @@
+/* Estética do portfólio */
 window {
-    background-color: #1a1b26;
-    border: 2px solid #7aa2f7;
-    border-radius: 10px;
+    background-color: #050505;
+    border: 1px solid #27272a;
+    border-radius: 16px;
     font-family: "Geist Mono";
 }
 
 #input {
     margin: 8px;
-    padding: 6px;
-    border: none;
-    border-radius: 6px;
-    background-color: #292e42;
-    color: #c0caf5;
+    padding: 6px 10px;
+    border: 1px solid #27272a;
+    border-radius: 999px;
+    background-color: #0a0a0a;
+    color: #f4f4f5;
 }
+
+#input:focus { border-color: alpha(#ac4bff, 0.5); }
 
 #outer-box { padding: 4px; }
 
 #entry {
-    padding: 6px;
-    border-radius: 6px;
+    padding: 6px 10px;
+    border-radius: 8px;
 }
 
-#entry:selected { background-color: #33467c; }
+#entry:selected { background-color: alpha(#ac4bff, 0.3); }
+#entry:selected #text { color: #d9b3ff; }
 
-#text { color: #c0caf5; }
+#text { color: #a1a1aa; }

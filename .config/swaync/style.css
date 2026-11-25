@@ -1,47 +1,64 @@
-/* Tokyo Night, no mesmo estilo de pílulas da barra */
+/* Estética do portfólio: fundo #050505, cards #0a0a0a com borda zinc, destaque roxo */
 * { font-family: "Geist Mono", "FontAwesome"; }
 
 .control-center {
-    background: #1a1b26;
-    border: 2px solid #7aa2f7;
-    border-radius: 12px;
-    color: #c0caf5;
+    background: #050505;
+    border: 1px solid #27272a;
+    border-radius: 16px;
+    color: #e4e4e7;
 }
 
 .notification-row .notification-background .notification,
 .widget-mpris-player {
-    background: #292e42;
-    border-radius: 10px;
-    color: #c0caf5;
+    background: #0a0a0a;
+    border: 1px solid #27272a;
+    border-radius: 12px;
+    color: #e4e4e7;
 }
+
+.notification-row .notification-background .notification:hover {
+    border-color: alpha(#ac4bff, 0.5);
+}
+
+.notification .summary { color: #f4f4f5; font-weight: bold; }
+.notification .body { color: #a1a1aa; }
+.notification .time { color: #c07eff; }
 
 .widget-buttons-grid { padding: 8px; }
 
 .widget-buttons-grid flowboxchild > button {
-    background: #292e42;
-    color: #c0caf5;
-    border-radius: 10px;
+    background: #0a0a0a;
+    border: 1px solid #27272a;
+    color: #e4e4e7;
+    border-radius: 12px;
     padding: 10px;
 }
+
+.widget-buttons-grid flowboxchild > button:hover { border-color: alpha(#ac4bff, 0.5); }
 
 .widget-buttons-grid flowboxchild > button.toggle:checked,
 .widget-buttons-grid flowboxchild > button.active,
 .widget-buttons-grid button:checked {
-    background: #7aa2f7;
-    color: #1a1b26;
+    background: #ac4bff;
+    border-color: #ac4bff;
+    color: #050505;
 }
 
 .widget-volume, .widget-backlight {
-    background: #292e42;
-    border-radius: 10px;
+    background: #0a0a0a;
+    border: 1px solid #27272a;
+    border-radius: 12px;
     margin: 4px 8px;
     padding: 4px 10px;
 }
 
-trough highlight { background: #7aa2f7; }
+.widget-title { color: #c07eff; letter-spacing: 3px; }
+
+trough { background: #27272a; }
+trough highlight { background: #ac4bff; }
 
 .widget-title > button, .widget-dnd > switch:checked {
-    background: #7aa2f7;
-    color: #1a1b26;
+    background: #ac4bff;
+    color: #050505;
     border-radius: 8px;
 }

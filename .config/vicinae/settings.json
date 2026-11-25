@@ -11,5 +11,6 @@
 {
    "$schema": "https://vicinae.com/schemas/config.json",
    "tray": { "enabled": false },
-   "font": { "normal": { "family": "Geist Mono" } }
+   "font": { "normal": { "family": "Geist Mono" } },
+   "theme": { "dark": { "name": "bento" } }
 }
