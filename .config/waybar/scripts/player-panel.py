@@ -42,12 +42,15 @@ ART_DIR = Path.home() / ".cache" / "waybar" / "art"
 POLL_MS = 400
 
 CSS = b"""
+* { font-family: "Geist Mono"; }
+
 window, window.background {
   background-color: transparent;
 }
 
 #card {
-  background-color: #1a1b26;
+  background-color: #0a0a0a;
+  border: 1px solid #27272a;
   border-radius: 28px;
   transition: background-color 400ms ease;
 }
@@ -63,33 +66,34 @@ scrolledwindow, scrolledwindow > viewport {
 
 #art {
   border-radius: 999px;
-  background-color: #292e42;
+  background-color: #0f0f0f;
 }
 
 #source {
-  color: alpha(#c0caf5, 0.55);
+  color: #c07eff;
+  letter-spacing: 2px;
   font-size: 13px;
 }
 
 #title {
-  color: #c0caf5;
-  font-size: 17px;
+  color: #f4f4f5;
+  font-size: 15px;
   font-weight: 700;
 }
 
 #subtitle {
-  color: alpha(#c0caf5, 0.55);
+  color: alpha(#e4e4e7, 0.55);
   font-size: 14px;
 }
 
 #elapsed, #remaining {
-  color: alpha(#c0caf5, 0.5);
+  color: alpha(#e4e4e7, 0.5);
   font-size: 12px;
   font-weight: 700;
 }
 
 #airplay, #link {
-  color: alpha(#c0caf5, 0.85);
+  color: alpha(#e4e4e7, 0.85);
   -gtk-icon-size: 22px;
   background: none;
   border: none;
@@ -100,11 +104,11 @@ scrolledwindow, scrolledwindow > viewport {
 }
 
 #airplay:hover, #link:hover {
-  color: #c0caf5;
+  color: #d9b3ff;
 }
 
 button.transport {
-  color: #c0caf5;
+  color: #e4e4e7;
   background: none;
   border: none;
   box-shadow: none;
@@ -123,7 +127,7 @@ button.play { font-size: 40px; min-width: 76px; }
 
 /* aleatorio / repetir: apagados quando desligados, acesos quando ativos */
 button.modo {
-  color: alpha(#c0caf5, 0.35);
+  color: alpha(#e4e4e7, 0.35);
   background: none;
   border: none;
   box-shadow: none;
@@ -132,12 +136,12 @@ button.modo {
   min-height: 40px;
   -gtk-icon-size: 20px;
 }
-button.modo:hover { color: alpha(#c0caf5, 0.6); }
-button.modo.ativo { color: #c0caf5; }
+button.modo:hover { color: alpha(#e4e4e7, 0.6); }
+button.modo.ativo { color: #ac4bff; }
 
 /* sliders: trilha fina arredondada, preenchimento branco */
 scale trough {
-  background-color: alpha(#c0caf5, 0.28);
+  background-color: #27272a;
   min-height: 6px;
   border-radius: 999px;
 }
@@ -145,7 +149,7 @@ scale trough {
 /* seletor completo: o tema define a cor de acento com especificidade maior */
 scale > trough > highlight,
 scale > trough > fill {
-  background-color: #c0caf5;
+  background-color: #ac4bff;
   background-image: none;
   border: none;
   border-radius: 999px;
@@ -169,7 +173,7 @@ scale > trough > fill {
 }
 
 #volume slider {
-  background-color: #c0caf5;
+  background-color: #d9b3ff;
   border-radius: 999px;
   min-width: 22px;
   min-height: 22px;
@@ -179,7 +183,7 @@ scale > trough > fill {
 }
 
 #vol-low, #vol-high {
-  color: alpha(#c0caf5, 0.8);
+  color: alpha(#e4e4e7, 0.8);
   -gtk-icon-size: 18px;
 }
 """

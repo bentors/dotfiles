@@ -1,12 +1,13 @@
 /* Wallpaper picker — thumbnail grid. Kept separate from config.rasi so the
-   launcher theme stays untouched. Tokyo Night. */
+   launcher theme stays untouched. Portfolio palette (bentorangel.vercel.app). */
 
 * {
-    bg:        #1a1b26;
-    bg-alt:    #292e42;
-    fg:        #c0caf5;
-    fg-dim:    #565f89;
-    accent:    #7aa2f7;
+    bg:        #050505;
+    bg-alt:    #0f0f0f;
+    fg:        #e4e4e7;
+    fg-dim:    #71717a;
+    accent:    #ac4bff;
+    border:    #27272a;
     font:      "Geist Mono 11";
 
     /* rofi's built-in theme paints widgets white unless these globals are set,
@@ -18,9 +19,9 @@
 window {
     transparency:     "real";
     background-color: @bg;
-    border:           2px;
-    border-color:     @bg-alt;
-    border-radius:    10px;
+    border:           1px;
+    border-color:     @border;
+    border-radius:    16px;
     width:            60%;
     padding:          20px;
 }
@@ -34,8 +35,10 @@ mainbox {
 inputbar {
     children:         [ prompt, entry ];
     background-color: @bg-alt;
-    border-radius:    8px;
-    padding:          10px 14px;
+    border:           1px;
+    border-color:     @border;
+    border-radius:    999px;
+    padding:          10px 16px;
     spacing:          12px;
 }
 
@@ -72,7 +75,7 @@ element {
 element selected {
     background-color: @bg-alt;
     text-color:       @fg;
-    border:           2px;
+    border:           1px;
     border-color:     @accent;
 }
 
