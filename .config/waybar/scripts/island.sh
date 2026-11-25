@@ -57,10 +57,11 @@ poda() {
 anel() {
   url="$1"; pos="$2"; dur="$3"
   [ -z "$url" ] && { anel_limpa; return; }
-  [ "${dur:-0}" -le 0 ] && return
 
   hash=$(printf '%s' "$url" | md5sum | cut -c1-12)
-  passo=$((pos * PASSOS / dur))
+  # sem duracao (podcast, troca de faixa): capa sem progresso, nao a anterior
+  passo=0
+  [ "${dur:-0}" -gt 0 ] && passo=$((pos * PASSOS / dur))
   [ "$passo" -gt "$PASSOS" ] && passo=$PASSOS
   alvo="$ART_DIR/$hash-$passo.png"
 
