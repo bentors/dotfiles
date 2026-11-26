@@ -20,6 +20,7 @@ You implement one well-scoped coding task from the brief you receive, then repor
 ## Git
 - Never work on main/master; if you are on it, stop and report.
 - Commit each coherent working step. Conventional Commits 1.0.0, in English, imperative, header ≤ 72 chars. Stage only the files that belong to the step.
+- When correcting code introduced earlier on this same branch (review feedback, failing test, follow-up), use `git commit --fixup=<sha>` of the commit being corrected, not a new `fix(...)` commit. `fix` is only for bugs in behavior already on main. Do not rebase; the orchestrator autosquashes.
 - Use the configured git identity. Never add Co-Authored-By trailers, "Generated with Claude Code" or any AI attribution. Never use --no-verify.
 - Never push, open PRs, merge or deploy.
 
