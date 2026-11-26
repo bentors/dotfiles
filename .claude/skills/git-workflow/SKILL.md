@@ -61,7 +61,7 @@ Commit at each coherent, working step — a test passing, a refactor done, a bug
 [optional footer(s)]
 ```
 
-**Types:** `feat` (new feature → MINOR), `fix` (bug fix → PATCH), `docs`, `style` (formatting only), `refactor` (no behavior change), `perf`, `test`, `build` (build system, dependencies), `ci`, `chore` (maintenance that fits nothing else), `revert`.
+**Types:** `feat` (new feature → MINOR), `fix` (bug fix of behavior already on `main` → PATCH), `docs`, `style` (formatting only), `refactor` (no behavior change), `perf`, `test`, `build` (build system, dependencies), `ci`, `chore` (maintenance that fits nothing else), `revert`.
 
 **Rules:**
 - Description: English, imperative mood ("add", not "added"/"adds"), lowercase start, no trailing period, header ≤ 72 characters.
@@ -102,6 +102,14 @@ Return 401 so the client re-authenticates instead of crashing.
 EOF
 ```
 
+**Corrections to the branch's own unmerged work are fixups, not `fix` commits.** When a review round, a failing test or a later step changes code introduced earlier on the same branch (in `origin/main..HEAD`), commit it with `git commit --fixup=<sha-of-the-commit-it-corrects>` instead of a new `fix(...)` commit. `fix` is reserved for bugs in behavior that already reached `main`. Before push or PR, fold the fixups in non-interactively:
+
+```bash
+GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash origin/main
+```
+
+If a target commit is already on the remote, folding it in rewrites pushed history: keep the fixup commit and ask the user before the rebase (it needs `--force-with-lease`).
+
 Amending or rewording **unpushed** commits on the feature branch is fine to keep history clean. Never rewrite commits that are already on the remote without asking.
 
 ## 4. What requires an explicit request
@@ -139,7 +147,8 @@ Exit code 0 → merges cleanly. Non-zero → it lists conflicting files. If ther
 **c. Commit hygiene**
 - Every commit header in `origin/main..HEAD` is valid Conventional Commits and in English.
 - No AI/agent attribution in any commit: `git log origin/main..HEAD --format='%an <%ae>%n%B' | grep -iE 'co-authored-by:.*(claude|anthropic|copilot)|generated with|noreply@anthropic\.com|🤖'` must return nothing. All authors must be the user's configured identity.
-- No fixup/WIP commits left unless the user wants them.
+- No `fixup!`/WIP commits left: autosquash them (section 3) before publishing; if they target already-pushed commits, ask first.
+- No `fix(...)` commit that only corrects code introduced earlier in `origin/main..HEAD`; that should have been a fixup.
 
 **d. Code review of the diff** — run `/code-review high` on the branch against `origin/main`, and `/security-review` too when the change touches auth, user input, secrets or permissions. Then read `git diff origin/main...HEAD` in full, plus the surrounding code it calls into, looking for:
 - logic bugs, unhandled errors, null/undefined paths, off-by-one, race conditions
